@@ -108,6 +108,8 @@
       box-shadow: 0 2px 6px rgba(31,77,46,.4);
       cursor: pointer;
     }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-[#F6F8F7] font-sans min-h-screen">
@@ -400,15 +402,46 @@
   <div id="session" style="display:none">
     <div style="display:flex; height:calc(100vh - 62px); overflow:hidden;">
 
-      <!-- Left col: camera -->
-      <div style="width:42%; background:#111827; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; flex-shrink:0; padding:28px; text-align:center;">
-        <div style="width:68px; height:68px; border-radius:50%; background:rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="6" width="14" height="12" rx="2.5" stroke="#6B7280" stroke-width="1.5"/>
-            <path d="M16 10.5l5.5-3.5v10l-5.5-3.5V10.5z" stroke="#6B7280" stroke-width="1.5" stroke-linejoin="round"/>
-          </svg>
+      <!-- Left col: live camera -->
+      <div id="cam-col" style="width:42%; position:relative; overflow:hidden; background:#111827; flex-shrink:0;">
+
+        <!-- Video feed (mirrored for natural selfie view) -->
+        <video id="cam-video" playsinline autoplay muted
+          style="width:100%; height:100%; object-fit:cover; transform:scaleX(-1); display:block; position:absolute; top:0; left:0;"></video>
+
+        <!-- Skeleton overlay (also mirrored to match video) -->
+        <canvas id="cam-canvas"
+          style="position:absolute; top:0; left:0; width:100%; height:100%; transform:scaleX(-1); pointer-events:none;"></canvas>
+
+        <!-- Live knee angle readout -->
+        <div id="angle-overlay"
+          style="display:none; position:absolute; bottom:12px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.65); border-radius:8px; padding:6px 14px; white-space:nowrap;">
+          <div style="display:flex; gap:14px; align-items:center;">
+            <div style="text-align:center;">
+              <p style="font-size:9px; color:#9CA3AF; margin:0; text-transform:uppercase; letter-spacing:0.06em;">L</p>
+              <p id="angle-left" style="font-size:15px; font-weight:700; color:white; margin:0; line-height:1.1;">—°</p>
+            </div>
+            <div style="width:1px; height:22px; background:rgba(255,255,255,0.2);"></div>
+            <div style="text-align:center;">
+              <p style="font-size:9px; color:#9CA3AF; margin:0; text-transform:uppercase; letter-spacing:0.06em;">R</p>
+              <p id="angle-right" style="font-size:15px; font-weight:700; color:white; margin:0; line-height:1.1;">—°</p>
+            </div>
+          </div>
         </div>
-        <p style="font-size:13px; font-weight:500; color:#6B7280; margin:0; line-height:1.5;">Camera activates here</p>
+
+        <!-- Full-body warning -->
+        <div id="cam-warning"
+          style="display:none; position:absolute; top:10px; left:8px; right:8px; background:rgba(220,38,38,0.9); border-radius:8px; padding:8px 10px; text-align:center;">
+          <p style="font-size:11.5px; font-weight:600; color:white; margin:0;">Move back — full body must be visible</p>
+        </div>
+
+        <!-- Init / loading overlay -->
+        <div id="cam-init"
+          style="position:absolute; inset:0; background:#111827; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;">
+          <div style="width:28px; height:28px; border:2.5px solid #1F4D2E; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+          <p style="font-size:12px; color:#6B7280; margin:0;">Starting camera</p>
+        </div>
+
       </div>
 
       <!-- Right col: exercise panel -->
@@ -576,6 +609,8 @@
     </main>
   </div><!-- /complete -->
 
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
   <script>
     // ── Date ──────────────────────────────────────────────────────────
     const dateEl = document.getElementById('header-date');
@@ -590,6 +625,8 @@
         document.getElementById(s).style.display = s === id ? 'block' : 'none';
       });
       window.scrollTo(0, 0);
+      if (id === 'session') startCamera();
+      else stopCamera();
     }
 
     document.getElementById('btn-start').addEventListener('click', function () { showScreen('setup'); });
@@ -638,6 +675,28 @@
       btn.style.boxShadow   = enabled ? '0 4px 12px rgba(31,77,46,.3)' : 'none';
     }
 
+    function processRep(score) {
+      var ex = EXERCISES[sess.exIdx];
+      sess.rep++;
+      sess.exerciseScores[sess.exIdx].push(score);
+      var qEl = document.getElementById('quality-display');
+      qEl.textContent = score;
+      qEl.style.color = qualityColor(score);
+      var fbEl = document.getElementById('feedback-text');
+      fbEl.textContent     = getFeedback(score);
+      fbEl.style.color     = '#374151';
+      fbEl.style.fontStyle = 'normal';
+      if (sess.rep >= ex.reps) {
+        if (sess.set >= ex.sets) {
+          sess.phase = 'exercise-complete';
+          sess.faceSelected = false;
+        } else {
+          sess.phase = 'set-complete';
+        }
+      }
+      renderSession();
+    }
+
     function renderSession() {
       var ex     = EXERCISES[sess.exIdx];
       var isLast = sess.exIdx === EXERCISES.length - 1;
@@ -667,32 +726,9 @@
       }
     }
 
-    // Simulate Rep
+    // Simulate Rep (fallback for all exercises; always available)
     document.getElementById('btn-simulate-rep').addEventListener('click', function () {
-      var ex = EXERCISES[sess.exIdx];
-      sess.rep++;
-
-      var score = randomQuality();
-      sess.exerciseScores[sess.exIdx].push(score);
-      var qEl   = document.getElementById('quality-display');
-      qEl.textContent = score;
-      qEl.style.color = qualityColor(score);
-
-      var fbEl = document.getElementById('feedback-text');
-      fbEl.textContent  = getFeedback(score);
-      fbEl.style.color  = '#374151';
-      fbEl.style.fontStyle = 'normal';
-
-      if (sess.rep >= ex.reps) {
-        if (sess.set >= ex.sets) {
-          sess.phase = 'exercise-complete';
-          sess.faceSelected = false;
-        } else {
-          sess.phase = 'set-complete';
-        }
-      }
-
-      renderSession();
+      processRep(randomQuality());
     });
 
     // Next Set
@@ -700,6 +736,7 @@
       sess.set++;
       sess.rep   = 0;
       sess.phase = 'reping';
+      resetSquatState();
       renderSession();
     });
 
@@ -728,6 +765,7 @@
       sess.set   = 1;
       sess.phase = 'reping';
       sess.faceSelected = false;
+      resetSquatState();
 
       var qEl = document.getElementById('quality-display');
       qEl.textContent = '—';
@@ -746,6 +784,222 @@
 
       renderSession();
     });
+
+    // ── Camera & MediaPipe Pose ────────────────────────────────────────
+    var camVideo    = document.getElementById('cam-video');
+    var camCanvas   = document.getElementById('cam-canvas');
+    var camInit     = document.getElementById('cam-init');
+    var mpPose      = null;
+    var mpCam       = null;
+    var camRunning  = false;
+
+    // MediaPipe body connections we care about (hip/torso/legs/shoulders)
+    var SKELETON_LINKS = [
+      [11,12],[11,23],[12,24],[23,24],  // torso
+      [23,25],[25,27],                   // left leg
+      [24,26],[26,28],                   // right leg
+      [11,13],[13,15],                   // left arm
+      [12,14],[14,16]                    // right arm
+    ];
+    var KEY_JOINTS = [11,12,13,14,15,16,23,24,25,26,27,28];
+
+    // ── Squat tracking state ───────────────────────────────────────────
+    var squatState = {
+      phase: 'up',          // 'up' | 'down'
+      minAngleL: 180, minAngleR: 180,
+      valgusFrames: 0, motionFrames: 0,
+      symSum: 0, symCount: 0
+    };
+
+    function resetSquatState() {
+      squatState.phase      = 'up';
+      squatState.minAngleL  = squatState.minAngleR = 180;
+      squatState.valgusFrames = squatState.motionFrames = 0;
+      squatState.symSum     = squatState.symCount = 0;
+    }
+
+    function angleBetween(a, b, c) {
+      var ax = a.x - b.x, ay = a.y - b.y;
+      var cx = c.x - b.x, cy = c.y - b.y;
+      var mag = Math.sqrt(ax*ax + ay*ay) * Math.sqrt(cx*cx + cy*cy);
+      if (mag === 0) return 180;
+      return Math.round(Math.acos(Math.max(-1, Math.min(1, (ax*cx + ay*cy) / mag))) * 180 / Math.PI);
+    }
+
+    function drawSkeleton(ctx, lm) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+      // Lines
+      ctx.strokeStyle = '#22C55E';
+      ctx.lineWidth   = 2;
+      ctx.lineCap     = 'round';
+      SKELETON_LINKS.forEach(function (pair) {
+        var a = lm[pair[0]], b = lm[pair[1]];
+        if ((a.visibility || 0) < 0.3 || (b.visibility || 0) < 0.3) return;
+        ctx.beginPath();
+        ctx.moveTo(a.x * ctx.canvas.width, a.y * ctx.canvas.height);
+        ctx.lineTo(b.x * ctx.canvas.width, b.y * ctx.canvas.height);
+        ctx.stroke();
+      });
+
+      // Joints
+      KEY_JOINTS.forEach(function (i) {
+        var pt = lm[i];
+        if ((pt.visibility || 0) < 0.3) return;
+        ctx.beginPath();
+        ctx.arc(pt.x * ctx.canvas.width, pt.y * ctx.canvas.height, 4, 0, Math.PI * 2);
+        ctx.fillStyle   = 'white';
+        ctx.fill();
+        ctx.strokeStyle = '#22C55E';
+        ctx.lineWidth   = 1.5;
+        ctx.stroke();
+      });
+    }
+
+    function analyzeSquat(lm) {
+      var lHip = lm[23], lKnee = lm[25], lAnkle = lm[27];
+      var rHip = lm[24], rKnee = lm[26], rAnkle = lm[28];
+
+      // Low-confidence ankle warning
+      var ankleConf = Math.min(lAnkle.visibility || 0, rAnkle.visibility || 0);
+      document.getElementById('cam-warning').style.display = ankleConf < 0.5 ? '' : 'none';
+      if (ankleConf < 0.3) return;
+
+      var angleL = angleBetween(lHip, lKnee, lAnkle);
+      var angleR = angleBetween(rHip, rKnee, rAnkle);
+      var avg    = (angleL + angleR) / 2;
+
+      document.getElementById('angle-overlay').style.display = '';
+      document.getElementById('angle-left').textContent  = angleL + '°';
+      document.getElementById('angle-right').textContent = angleR + '°';
+
+      // Valgus: knee x crosses inside ankle x by >3% frame width (unmirrored coords)
+      // Person's left landmarks have higher x (image-right) in an unmirrored frame.
+      // Left valgus  = left knee drifts toward center = x decreases below ankle x
+      // Right valgus = right knee drifts toward center = x increases above ankle x
+      var leftValgus  = lKnee.x < lAnkle.x - 0.03;
+      var rightValgus = rKnee.x > rAnkle.x + 0.03;
+
+      if (squatState.phase === 'up') {
+        if (avg < 130) {
+          squatState.phase     = 'down';
+          squatState.minAngleL = angleL;
+          squatState.minAngleR = angleR;
+          squatState.valgusFrames = squatState.motionFrames = 0;
+          squatState.symSum    = squatState.symCount = 0;
+        }
+      } else {
+        squatState.minAngleL = Math.min(squatState.minAngleL, angleL);
+        squatState.minAngleR = Math.min(squatState.minAngleR, angleR);
+        squatState.motionFrames++;
+        if (leftValgus || rightValgus) squatState.valgusFrames++;
+        squatState.symSum  += Math.abs(angleL - angleR);
+        squatState.symCount++;
+
+        if (avg > 160) {
+          var minAngle = Math.min(squatState.minAngleL, squatState.minAngleR);
+
+          // Depth  40%: 90° → 100, 130° → 0
+          var depth = Math.max(0, Math.min(100, (130 - minAngle) / 40 * 100));
+
+          // Tracking 40%: fraction of frames without valgus
+          var tracking = squatState.motionFrames > 0
+            ? (1 - squatState.valgusFrames / squatState.motionFrames) * 100
+            : 100;
+
+          // Symmetry 20%: penalise avg L/R angle difference
+          var avgDiff    = squatState.symCount > 0 ? squatState.symSum / squatState.symCount : 0;
+          var symmetry   = Math.max(0, 100 - avgDiff * 2);
+
+          var quality = Math.round(0.4 * depth + 0.4 * tracking + 0.2 * symmetry);
+          quality     = Math.max(0, Math.min(100, quality));
+
+          processRep(quality);
+          resetSquatState();
+        }
+      }
+    }
+
+    function onPoseResults(results) {
+      var ctx = camCanvas.getContext('2d');
+
+      // Keep canvas pixel dims in sync with its CSS-rendered size
+      var w = camCanvas.clientWidth  || 640;
+      var h = camCanvas.clientHeight || 480;
+      if (camCanvas.width !== w || camCanvas.height !== h) {
+        camCanvas.width  = w;
+        camCanvas.height = h;
+      }
+
+      if (results.poseLandmarks) {
+        drawSkeleton(ctx, results.poseLandmarks);
+        // Only analyse squats during exercise 1 while actively reping
+        if (sess.exIdx === 0 && sess.phase === 'reping') {
+          analyzeSquat(results.poseLandmarks);
+        } else {
+          document.getElementById('angle-overlay').style.display = 'none';
+          document.getElementById('cam-warning').style.display   = 'none';
+        }
+      } else {
+        ctx.clearRect(0, 0, w, h);
+        document.getElementById('angle-overlay').style.display = 'none';
+      }
+    }
+
+    function startCamera() {
+      if (camRunning) return;
+      camInit.style.display = 'flex';
+
+      // Lazily initialise the Pose model
+      if (!mpPose) {
+        mpPose = new Pose({
+          locateFile: function (f) {
+            return 'https://cdn.jsdelivr.net/npm/@mediapipe/pose/' + f;
+          }
+        });
+        mpPose.setOptions({
+          modelComplexity: 1,
+          smoothLandmarks: true,
+          enableSegmentation: false,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+        mpPose.onResults(onPoseResults);
+      }
+
+      resetSquatState();
+
+      mpCam = new Camera(camVideo, {
+        onFrame: async function () {
+          await mpPose.send({ image: camVideo });
+        },
+        width: 640,
+        height: 480
+      });
+
+      mpCam.start()
+        .then(function () {
+          camRunning = true;
+          camInit.style.display = 'none';
+        })
+        .catch(function (err) {
+          console.warn('Camera error:', err);
+          camInit.innerHTML =
+            '<p style="font-size:12px; color:#9CA3AF; text-align:center; padding:20px; line-height:1.6;">' +
+            'Camera unavailable.<br>Use Simulate Rep.</p>';
+        });
+    }
+
+    function stopCamera() {
+      if (!camRunning) return;
+      if (mpCam) { mpCam.stop(); mpCam = null; }
+      camRunning = false;
+      var ctx = camCanvas.getContext('2d');
+      ctx.clearRect(0, 0, camCanvas.width, camCanvas.height);
+      camInit.style.display = 'flex';
+      document.getElementById('angle-overlay').style.display = 'none';
+      document.getElementById('cam-warning').style.display   = 'none';
+    }
 
     // Finish Session → complete screen
     document.getElementById('btn-finish-session').addEventListener('click', function () {
