@@ -36,6 +36,9 @@
     .session-dot {
       width: 10px; height: 10px; border-radius: 50%;
     }
+    .patient-row { cursor: pointer; border-left: 3px solid transparent; transition: background 0.12s; }
+    .patient-row:hover { background: #F6F8F7; }
+    .patient-row.active { background: #EAF4EE; border-left-color: #1F4D2E; }
   </style>
 </head>
 <body class="bg-[#F6F8F7] font-sans min-h-screen">
@@ -59,7 +62,47 @@
     </div>
   </header>
 
-  <main class="max-w-2xl mx-auto px-5 pt-5 pb-12 space-y-4">
+  <div style="display:flex; min-height:calc(100vh - 62px);">
+
+    <!-- ── Sidebar ─────────────────────────────────────────────────── -->
+    <aside style="width:280px; flex-shrink:0; background:white; border-right:1px solid #F0F0F0; overflow-y:auto;">
+      <div style="padding:16px 16px 10px; border-bottom:1px solid #F0F0F0;">
+        <p style="font-size:10px; font-weight:700; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.1em; margin:0;">Today's Patients</p>
+      </div>
+
+      <div class="patient-row active" data-patient="conor" onclick="selectPatient('conor')"
+        style="padding:14px 16px; display:flex; align-items:flex-start; gap:10px;">
+        <div style="width:8px; height:8px; border-radius:50%; background:#22C55E; flex-shrink:0; margin-top:4px;"></div>
+        <div>
+          <p style="font-size:13.5px; font-weight:600; color:#111827; margin:0 0 2px;">Conor Murphy</p>
+          <p style="font-size:11.5px; color:#6B7280; margin:0;">Appointment today</p>
+        </div>
+      </div>
+
+      <div class="patient-row" data-patient="sarah" onclick="selectPatient('sarah')"
+        style="padding:14px 16px; display:flex; align-items:flex-start; gap:10px; border-top:1px solid #F9FAFB;">
+        <div style="width:8px; height:8px; border-radius:50%; background:#F59E0B; flex-shrink:0; margin-top:4px;"></div>
+        <div>
+          <p style="font-size:13.5px; font-weight:600; color:#111827; margin:0 0 2px;">Sarah Collins</p>
+          <p style="font-size:11.5px; color:#6B7280; margin:0;">2 sessions missed</p>
+        </div>
+      </div>
+
+      <div class="patient-row" data-patient="michael" onclick="selectPatient('michael')"
+        style="padding:14px 16px; display:flex; align-items:flex-start; gap:10px; border-top:1px solid #F9FAFB;">
+        <div style="width:8px; height:8px; border-radius:50%; background:#EF4444; flex-shrink:0; margin-top:4px;"></div>
+        <div>
+          <p style="font-size:13.5px; font-weight:600; color:#111827; margin:0 0 2px;">Michael Brady</p>
+          <p style="font-size:11.5px; color:#6B7280; margin:0;">Pain score 7</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main panel area ─────────────────────────────────────────── -->
+    <div style="flex:1; min-width:0; overflow-y:auto;">
+      <div id="panel-conor">
+
+        <main class="max-w-2xl mx-auto px-5 pt-5 pb-12 space-y-4">
 
     <!-- ── Card 1: Patient summary ─────────────────────────────────── -->
     <div class="card p-5">
@@ -247,7 +290,189 @@
       </div>
     </div>
 
-  </main>
+        </main>
+      </div><!-- /panel-conor -->
+
+      <!-- ── Sarah Collins ───────────────────────────────────────── -->
+      <div id="panel-sarah" style="display:none">
+        <main class="max-w-2xl mx-auto px-5 pt-5 pb-12 space-y-4">
+
+          <div class="card p-5">
+            <div class="flex items-start gap-4 mb-4">
+              <div class="w-[48px] h-[48px] rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-[15px]" style="background:#D97706">SC</div>
+              <div class="flex-1 min-w-0 pt-0.5">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h2 class="text-[17px] font-bold text-gray-900">Sarah Collins</h2>
+                  <span class="badge" style="background:#FEF9C3; color:#92400E;">Week 6</span>
+                </div>
+                <p class="text-[13px] text-gray-500 mt-0.5 font-medium">Knee Rehabilitation · Post-Op</p>
+              </div>
+              <span class="badge mt-0.5" style="background:#FEE2E2; color:#991B1B;">Flagged</span>
+            </div>
+            <div class="border-t border-gray-100 mb-4"></div>
+            <div class="grid grid-cols-2 gap-y-4 gap-x-6">
+              <div>
+                <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Sessions This Week</p>
+                <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:#1F4D2E;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#1F4D2E;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#E5E7EB;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#E5E7EB;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#E5E7EB;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#E5E7EB;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#E5E7EB;"></div>
+                </div>
+                <p class="text-[12px] font-semibold text-gray-500"><span class="text-gray-800">2</span> of 7</p>
+              </div>
+              <div>
+                <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Avg Quality Score</p>
+                <p class="text-[28px] font-extrabold leading-none" style="color:#1F4D2E">68</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-5" style="border-left:4px solid #EF4444;">
+            <div class="flex items-start gap-3">
+              <div class="w-[34px] h-[34px] rounded-full flex-shrink-0 flex items-center justify-center" style="background:#FEE2E2">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2L14 13H2L8 2Z" stroke="#EF4444" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+                  <path d="M8 6v3.5" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="8" cy="11.5" r="0.75" fill="#EF4444"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <p class="text-[14px] font-bold text-gray-900">Low Adherence</p>
+                  <span class="badge" style="background:#FEE2E2; color:#991B1B;">Action needed</span>
+                </div>
+                <p class="text-[13.5px] font-semibold text-gray-800 mb-1">2 of 7 sessions completed this week</p>
+                <p class="text-[12.5px] text-gray-500 leading-relaxed">Patient has not engaged with the prescribed programme. Consider identifying barriers before adjusting the plan.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-5" style="border-left:4px solid #1F4D2E;">
+            <div class="flex items-start gap-3 mb-4">
+              <div class="w-[34px] h-[34px] rounded-full flex-shrink-0 flex items-center justify-center" style="background:#EAF4EE">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 1l1.5 4h4l-3.25 2.4 1.25 4L8 9l-3.5 2.4 1.25-4L2.5 5h4L8 1z" stroke="#1F4D2E" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <p class="text-[14px] font-bold text-gray-900">Co-Pilot Analysis</p>
+                  <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">AI</span>
+                </div>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Low adherence may reflect motivation, pain, or scheduling barriers. Consider checking in with Sarah before her next appointment to understand what's getting in the way.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 pt-3 border-t border-gray-100">
+              <button id="btn-accept-sc" class="flex-1 h-[40px] rounded-[10px] text-[13.5px] font-semibold transition-all duration-150"
+                style="border:1.5px solid #1F4D2E; color:#1F4D2E; background:transparent;" onclick="acceptCopilotSC()">
+                Accept Recommendation
+              </button>
+              <button id="btn-override-sc" class="flex-1 h-[40px] rounded-[10px] text-[13.5px] font-semibold transition-all duration-150"
+                style="border:1.5px solid #D1D5DB; color:#6B7280; background:transparent;" onclick="overrideCopilotSC()">
+                Override
+              </button>
+            </div>
+            <p id="copilot-status-sc" class="text-[12px] text-gray-400 text-center mt-2" style="display:none;"></p>
+          </div>
+
+        </main>
+      </div><!-- /panel-sarah -->
+
+      <!-- ── Michael Brady ───────────────────────────────────────── -->
+      <div id="panel-michael" style="display:none">
+        <main class="max-w-2xl mx-auto px-5 pt-5 pb-12 space-y-4">
+
+          <div class="card p-5">
+            <div class="flex items-start gap-4 mb-4">
+              <div class="w-[48px] h-[48px] rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-[15px]" style="background:#DC2626">MB</div>
+              <div class="flex-1 min-w-0 pt-0.5">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h2 class="text-[17px] font-bold text-gray-900">Michael Brady</h2>
+                  <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">Week 12</span>
+                </div>
+                <p class="text-[13px] text-gray-500 mt-0.5 font-medium">Hamstring Rehabilitation</p>
+              </div>
+              <span class="badge mt-0.5" style="background:#FEE2E2; color:#991B1B;">Flagged</span>
+            </div>
+            <div class="border-t border-gray-100 mb-4"></div>
+            <div class="grid grid-cols-2 gap-y-4 gap-x-6">
+              <div>
+                <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Sessions This Week</p>
+                <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
+                  <div style="width:10px;height:10px;border-radius:50%;background:#1F4D2E;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#1F4D2E;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#1F4D2E;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#1F4D2E;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#1F4D2E;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#E5E7EB;"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#E5E7EB;"></div>
+                </div>
+                <p class="text-[12px] font-semibold text-gray-500"><span class="text-gray-800">5</span> of 7</p>
+              </div>
+              <div>
+                <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Avg Quality Score</p>
+                <p class="text-[28px] font-extrabold leading-none" style="color:#1F4D2E">72</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-5" style="border-left:4px solid #EF4444;">
+            <div class="flex items-start gap-3">
+              <div class="w-[34px] h-[34px] rounded-full flex-shrink-0 flex items-center justify-center" style="background:#FEE2E2">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2L14 13H2L8 2Z" stroke="#EF4444" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+                  <path d="M8 6v3.5" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="8" cy="11.5" r="0.75" fill="#EF4444"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <p class="text-[14px] font-bold text-gray-900">Elevated Pain Score</p>
+                  <span class="badge" style="background:#FEE2E2; color:#991B1B;">Action needed</span>
+                </div>
+                <p class="text-[13.5px] font-semibold text-gray-800 mb-1">Pain score 7 after last session — above baseline of 3</p>
+                <p class="text-[12.5px] text-gray-500 leading-relaxed">Reported pain significantly exceeds baseline. Requires assessment before any further progression of the programme.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-5" style="border-left:4px solid #1F4D2E;">
+            <div class="flex items-start gap-3 mb-4">
+              <div class="w-[34px] h-[34px] rounded-full flex-shrink-0 flex items-center justify-center" style="background:#EAF4EE">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 1l1.5 4h4l-3.25 2.4 1.25 4L8 9l-3.5 2.4 1.25-4L2.5 5h4L8 1z" stroke="#1F4D2E" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <p class="text-[14px] font-bold text-gray-900">Co-Pilot Analysis</p>
+                  <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">AI</span>
+                </div>
+                <p class="text-[13px] text-gray-600 leading-relaxed">Pain significantly above baseline. Recommend assessing Michael before progressing or loading the programme further. Consider reducing intensity for the next session.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 pt-3 border-t border-gray-100">
+              <button id="btn-accept-mb" class="flex-1 h-[40px] rounded-[10px] text-[13.5px] font-semibold transition-all duration-150"
+                style="border:1.5px solid #1F4D2E; color:#1F4D2E; background:transparent;" onclick="acceptCopilotMB()">
+                Accept Recommendation
+              </button>
+              <button id="btn-override-mb" class="flex-1 h-[40px] rounded-[10px] text-[13.5px] font-semibold transition-all duration-150"
+                style="border:1.5px solid #D1D5DB; color:#6B7280; background:transparent;" onclick="overrideCopilotMB()">
+                Override
+              </button>
+            </div>
+            <p id="copilot-status-mb" class="text-[12px] text-gray-400 text-center mt-2" style="display:none;"></p>
+          </div>
+
+        </main>
+      </div><!-- /panel-michael -->
+
+    </div><!-- /main-area -->
+  </div><!-- /layout -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -411,6 +636,53 @@
       var el = document.getElementById('copilot-status');
       el.textContent   = msg;
       el.style.display = 'block';
+    }
+
+    // ── Sidebar patient selection ──────────────────────────────────────
+    function selectPatient(id) {
+      ['conor', 'sarah', 'michael'].forEach(function (p) {
+        document.getElementById('panel-' + p).style.display = p === id ? 'block' : 'none';
+      });
+      document.querySelectorAll('.patient-row').forEach(function (row) {
+        var active = row.dataset.patient === id;
+        row.classList.toggle('active', active);
+      });
+    }
+
+    // ── Sarah Co-Pilot ─────────────────────────────────────────────────
+    function acceptCopilotSC() {
+      var btn = document.getElementById('btn-accept-sc');
+      btn.textContent = 'Accepted ✓';
+      btn.style.background = '#1F4D2E'; btn.style.color = 'white'; btn.style.border = '1.5px solid #1F4D2E';
+      btn.onclick = null;
+      document.getElementById('btn-override-sc').style.display = 'none';
+      document.getElementById('copilot-status-sc').textContent = 'Recommendation accepted.';
+      document.getElementById('copilot-status-sc').style.display = 'block';
+    }
+    function overrideCopilotSC() {
+      var btn = document.getElementById('btn-override-sc');
+      btn.textContent = 'Override noted'; btn.style.borderColor = '#9CA3AF'; btn.onclick = null;
+      document.getElementById('btn-accept-sc').style.display = 'none';
+      document.getElementById('copilot-status-sc').textContent = 'Override recorded.';
+      document.getElementById('copilot-status-sc').style.display = 'block';
+    }
+
+    // ── Michael Co-Pilot ───────────────────────────────────────────────
+    function acceptCopilotMB() {
+      var btn = document.getElementById('btn-accept-mb');
+      btn.textContent = 'Accepted ✓';
+      btn.style.background = '#1F4D2E'; btn.style.color = 'white'; btn.style.border = '1.5px solid #1F4D2E';
+      btn.onclick = null;
+      document.getElementById('btn-override-mb').style.display = 'none';
+      document.getElementById('copilot-status-mb').textContent = 'Recommendation accepted.';
+      document.getElementById('copilot-status-mb').style.display = 'block';
+    }
+    function overrideCopilotMB() {
+      var btn = document.getElementById('btn-override-mb');
+      btn.textContent = 'Override noted'; btn.style.borderColor = '#9CA3AF'; btn.onclick = null;
+      document.getElementById('btn-accept-mb').style.display = 'none';
+      document.getElementById('copilot-status-mb').textContent = 'Override recorded.';
+      document.getElementById('copilot-status-mb').style.display = 'block';
     }
   </script>
 
