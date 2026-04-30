@@ -447,10 +447,19 @@
       <!-- Right col: exercise panel -->
       <div style="flex:1; background:white; overflow-y:auto; padding:20px 20px 32px; display:flex; flex-direction:column; gap:14px;">
 
-        <!-- Exercise heading -->
-        <div>
-          <p id="ex-number" style="font-size:10.5px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0 0 3px;">Exercise 1 of 3</p>
-          <h2 id="ex-name" style="font-size:17px; font-weight:800; color:#111827; margin:0; line-height:1.2;">Mini Squat</h2>
+        <!-- Exercise heading + voice mute toggle -->
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+          <div>
+            <p id="ex-number" style="font-size:10.5px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0 0 3px;">Exercise 1 of 3</p>
+            <h2 id="ex-name" style="font-size:17px; font-weight:800; color:#111827; margin:0; line-height:1.2;">Mini Squat</h2>
+          </div>
+          <button id="btn-mute-voice" onclick="toggleVoice()" title="Mute voice cues"
+            style="width:32px; height:32px; border-radius:8px; border:1.5px solid #1F4D2E; background:white; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#1F4D2E; transition:all 0.15s;">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+              <path d="M5 7H2v6h3l5 4V3L5 7z" fill="currentColor"/>
+              <path d="M14.5 5.5a7 7 0 010 9M11.5 8a3 3 0 010 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </button>
         </div>
 
         <!-- Instructions -->
@@ -682,10 +691,12 @@
       var qEl = document.getElementById('quality-display');
       qEl.textContent = score;
       qEl.style.color = qualityColor(score);
+      var feedbackMsg = getFeedback(score);
       var fbEl = document.getElementById('feedback-text');
-      fbEl.textContent     = getFeedback(score);
+      fbEl.textContent     = feedbackMsg;
       fbEl.style.color     = '#374151';
       fbEl.style.fontStyle = 'normal';
+      speakFeedback(feedbackMsg);
       if (sess.rep >= ex.reps) {
         if (sess.set >= ex.sets) {
           sess.phase = 'exercise-complete';
@@ -999,6 +1010,33 @@
       camInit.style.display = 'flex';
       document.getElementById('angle-overlay').style.display = 'none';
       document.getElementById('cam-warning').style.display   = 'none';
+    }
+
+    // ── Voice cues (Web Speech API) ────────────────────────────────────
+    var voiceMuted    = false;
+    var lastSpokenMsg = '';
+    var ICON_SPEAK = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M5 7H2v6h3l5 4V3L5 7z" fill="currentColor"/><path d="M14.5 5.5a7 7 0 010 9M11.5 8a3 3 0 010 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+    var ICON_MUTE  = '<svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M5 7H2v6h3l5 4V3L5 7z" fill="currentColor"/><line x1="13" y1="7" x2="18" y2="13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="18" y1="7" x2="13" y2="13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+    function speakFeedback(message) {
+      if (voiceMuted || !window.speechSynthesis) return;
+      if (message === lastSpokenMsg) return;
+      lastSpokenMsg = message;
+      window.speechSynthesis.cancel();
+      var utter = new SpeechSynthesisUtterance(message);
+      utter.rate = 1.05;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function toggleVoice() {
+      voiceMuted = !voiceMuted;
+      var btn = document.getElementById('btn-mute-voice');
+      btn.innerHTML         = voiceMuted ? ICON_MUTE : ICON_SPEAK;
+      btn.title             = voiceMuted ? 'Unmute voice cues' : 'Mute voice cues';
+      btn.style.background  = voiceMuted ? '#F3F4F6' : 'white';
+      btn.style.color       = voiceMuted ? '#9CA3AF' : '#1F4D2E';
+      btn.style.borderColor = voiceMuted ? '#E5E7EB' : '#1F4D2E';
+      if (voiceMuted) window.speechSynthesis.cancel();
     }
 
     // Finish Session → complete screen
