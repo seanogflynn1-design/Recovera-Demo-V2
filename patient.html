@@ -677,12 +677,51 @@
 
     function randomQuality() { return Math.floor(Math.random() * 36) + 60; }
 
-    function getFeedback(score) {
-      var hi  = ['Great form, keep it up!', 'Excellent technique!', 'Perfect rep, well done.'];
-      var mid = ['Good. Keep knees tracking over toes.', 'Solid — maintain that depth.', 'Nice work, focus on control.'];
-      var lo  = ['Watch your alignment.', 'Slow it down a little.', 'Keep your core tight.'];
-      var pool = score >= 85 ? hi : score >= 70 ? mid : lo;
+    // Exercise-specific cue pools — used by the simulate fallback
+    var EXERCISE_CUES = [
+      { // 0 — Mini Squat
+        hi:  ['Excellent rep — controlled and strong'],
+        mid: ['Good depth — keep your chest up', 'Drive through your heels on the way up'],
+        lo:  ['Drive through your heels on the way up', 'Left knee tracking inward — push it out']
+      },
+      { // 1 — Single Leg Balance
+        hi:  ['Excellent — rock solid'],
+        mid: ['Good — find a fixed point to focus on', 'Arms out slightly if you need it'],
+        lo:  ['Hip dropping — squeeze your glute', 'Arms out slightly if you need it']
+      },
+      { // 2 — Straight Leg Raise
+        hi:  ['Strong rep — full range'],
+        mid: ['Good height — lower slowly'],
+        lo:  ['Raise a little higher — slow and controlled', 'Keep that knee completely straight']
+      }
+    ];
+
+    function getDefaultFeedback(score) {
+      var p    = EXERCISE_CUES[sess.exIdx] || EXERCISE_CUES[0];
+      var pool = score >= 85 ? p.hi : score >= 70 ? p.mid : p.lo;
       return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    // ── Exercise-specific measurement-gated cue selectors ─────────────
+    function getSquatFeedback(depth, tracking, valgusRatio) {
+      if (valgusRatio > 0.3)           return 'Left knee tracking inward — push it out';
+      if (depth >= 70 && tracking >= 85) return 'Excellent rep — controlled and strong';
+      if (depth >= 60)                 return 'Good depth — keep your chest up';
+      return 'Drive through your heels on the way up';
+    }
+
+    function getBalanceFeedback(quality) {
+      if (quality >= 85) return 'Excellent — rock solid';
+      if (quality >= 75) return 'Good — find a fixed point to focus on';
+      if (quality >= 65) return 'Arms out slightly if you need it';
+      return 'Hip dropping — squeeze your glute';
+    }
+
+    function getSLRFeedback(heightScore, kneeScore) {
+      if (kneeScore < 60)                         return 'Keep that knee completely straight';
+      if (heightScore >= 80 && kneeScore >= 70)   return 'Strong rep — full range';
+      if (heightScore >= 50)                      return 'Good height — lower slowly';
+      return 'Raise a little higher — slow and controlled';
     }
 
     function qualityColor(score) {
@@ -705,7 +744,7 @@
       qEl.textContent = score;
       qEl.style.color = qualityColor(score);
       var fbEl = document.getElementById('form-feedback');
-      fbEl.textContent     = feedback || getFeedback(score);
+      fbEl.textContent     = feedback || getDefaultFeedback(score);
       window.speechSynthesis.cancel();
       if (!window._muted) {
         var u = new SpeechSynthesisUtterance(
@@ -913,12 +952,6 @@
       return arr.reduce(function (a, v) { return a + (v - mean) * (v - mean); }, 0) / arr.length;
     }
 
-    function getBalanceFeedback(quality) {
-      if (quality >= 85) return 'Excellent stability';
-      if (quality >= 70) return 'Good — stay steady';
-      return 'Hip dropping — engage your glutes';
-    }
-
     function finishBalanceLeg() {
       var variance = computeVariance(balanceState.hipXSamples);
       // variance ~0.0001 → 96, ~0.0005 → 80, ~0.001 → 60
@@ -943,12 +976,6 @@
       slrState.phase = 'down';
       slrState.minHipAngle = 180;
       slrState.kneeAngleSamples = [];
-    }
-
-    function getSLRFeedback(heightScore, kneeScore) {
-      if (kneeScore < 60) return 'Keep the knee straight';
-      if (heightScore < 50) return 'Raise a little higher';
-      return 'Good — lower slowly';
     }
 
     function analyzeSLR(lm) {
@@ -1091,10 +1118,12 @@
           var avgDiff    = squatState.symCount > 0 ? squatState.symSum / squatState.symCount : 0;
           var symmetry   = Math.max(0, 100 - avgDiff * 2);
 
-          var quality = Math.round(0.4 * depth + 0.4 * tracking + 0.2 * symmetry);
-          quality     = Math.max(0, Math.min(100, quality));
+          var quality    = Math.round(0.4 * depth + 0.4 * tracking + 0.2 * symmetry);
+          quality        = Math.max(0, Math.min(100, quality));
+          var valgusRatio = squatState.motionFrames > 0
+            ? squatState.valgusFrames / squatState.motionFrames : 0;
 
-          processRep(quality);
+          processRep(quality, getSquatFeedback(depth, tracking, valgusRatio));
           resetSquatState();
         }
       }
