@@ -418,12 +418,12 @@
           style="display:none; position:absolute; bottom:12px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.65); border-radius:8px; padding:6px 14px; white-space:nowrap;">
           <div style="display:flex; gap:14px; align-items:center;">
             <div style="text-align:center;">
-              <p style="font-size:9px; color:#9CA3AF; margin:0; text-transform:uppercase; letter-spacing:0.06em;">L</p>
+              <p id="angle-label-left" style="font-size:9px; color:#9CA3AF; margin:0; text-transform:uppercase; letter-spacing:0.06em;">L</p>
               <p id="angle-left" style="font-size:15px; font-weight:700; color:white; margin:0; line-height:1.1;">—°</p>
             </div>
             <div style="width:1px; height:22px; background:rgba(255,255,255,0.2);"></div>
             <div style="text-align:center;">
-              <p style="font-size:9px; color:#9CA3AF; margin:0; text-transform:uppercase; letter-spacing:0.06em;">R</p>
+              <p id="angle-label-right" style="font-size:9px; color:#9CA3AF; margin:0; text-transform:uppercase; letter-spacing:0.06em;">R</p>
               <p id="angle-right" style="font-size:15px; font-weight:700; color:white; margin:0; line-height:1.1;">—°</p>
             </div>
           </div>
@@ -448,9 +448,14 @@
       <div style="flex:1; background:white; overflow-y:auto; padding:20px 20px 32px; display:flex; flex-direction:column; gap:14px;">
 
         <!-- Exercise heading -->
-        <div>
-          <p id="ex-number" style="font-size:10.5px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0 0 3px;">Exercise 1 of 3</p>
-          <h2 id="ex-name" style="font-size:17px; font-weight:800; color:#111827; margin:0; line-height:1.2;">Mini Squat</h2>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+          <div>
+            <p id="ex-number" style="font-size:10.5px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0 0 3px;">Exercise 1 of 3</p>
+            <h2 id="ex-name" style="font-size:17px; font-weight:800; color:#111827; margin:0; line-height:1.2;">Mini Squat</h2>
+          </div>
+          <button id="mute-btn" onclick="window._muted=!window._muted;this.textContent=window._muted?'🔇 Muted':'🔊 Voice'"
+            style="flex-shrink:0; height:32px; padding:0 12px; border-radius:8px; border:1.5px solid #E5E7EB; background:white; font-family:inherit; font-size:12px; font-weight:600; color:#374151; cursor:pointer;">
+            🔊 Voice</button>
         </div>
 
         <!-- Instructions -->
@@ -468,13 +473,30 @@
           </div>
         </div>
 
+        <!-- Balance: timer + leg indicator (exercise 2 only) -->
+        <div id="balance-ui" style="display:none; background:#EAF4EE; border-radius:12px; padding:14px 16px; text-align:center;">
+          <p id="balance-leg-label" style="font-size:11px; font-weight:700; color:#4A7C59; text-transform:uppercase; letter-spacing:0.08em; margin:0 0 4px;">Left Leg</p>
+          <p id="balance-timer" style="font-size:44px; font-weight:800; color:#1F4D2E; margin:0; line-height:1;">30</p>
+          <p style="font-size:11px; color:#4A7C59; margin:4px 0 0; font-weight:500;">seconds remaining</p>
+        </div>
+
+        <!-- SLR: side-on prompt (exercise 3 only) -->
+        <div id="slr-prompt" style="display:none; background:#FFF7ED; border-radius:10px; padding:10px 14px; align-items:center; gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0">
+            <circle cx="8" cy="8" r="6.5" stroke="#B45309" stroke-width="1.3"/>
+            <path d="M8 5.5V8.5" stroke="#B45309" stroke-width="1.4" stroke-linecap="round"/>
+            <circle cx="8" cy="10.5" r="0.75" fill="#B45309"/>
+          </svg>
+          <p style="font-size:12.5px; font-weight:600; color:#B45309; margin:0;">Turn side-on to the camera</p>
+        </div>
+
         <!-- Quality score + form feedback -->
         <div class="card" style="padding:13px;">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
             <p style="font-size:10px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0;">Quality Score</p>
             <p id="quality-display" style="font-size:15px; font-weight:800; color:#1F4D2E; margin:0; transition:color 0.2s;">—</p>
           </div>
-          <p id="feedback-text" style="font-size:12.5px; color:#9CA3AF; font-style:italic; margin:0;">Waiting to begin</p>
+          <p id="form-feedback" style="font-size:12.5px; color:#9CA3AF; font-style:italic; margin:0;">Waiting to begin</p>
         </div>
 
         <!-- Phase: active reping -->
@@ -641,8 +663,8 @@
       },
       {
         name: 'Single Leg Balance',
-        instructions: 'Stand on your right leg with hands by your sides. Keep your hips level and fix your gaze on a point ahead. Engage your core and hold steady throughout.',
-        reps: 10, sets: 3
+        instructions: 'Stand on one leg with hands by your sides. Keep your hips level and fix your gaze on a point ahead. Hold for 30 seconds each leg — left first, then right.',
+        reps: 2, sets: 3
       },
       {
         name: 'Straight Leg Raise',
@@ -675,15 +697,22 @@
       btn.style.boxShadow   = enabled ? '0 4px 12px rgba(31,77,46,.3)' : 'none';
     }
 
-    function processRep(score) {
+    function processRep(score, feedback) {
       var ex = EXERCISES[sess.exIdx];
       sess.rep++;
       sess.exerciseScores[sess.exIdx].push(score);
       var qEl = document.getElementById('quality-display');
       qEl.textContent = score;
       qEl.style.color = qualityColor(score);
-      var fbEl = document.getElementById('feedback-text');
-      fbEl.textContent     = getFeedback(score);
+      var fbEl = document.getElementById('form-feedback');
+      fbEl.textContent     = feedback || getFeedback(score);
+      window.speechSynthesis.cancel();
+      if (!window._muted) {
+        var u = new SpeechSynthesisUtterance(
+          document.getElementById('form-feedback')
+          .textContent);
+        window.speechSynthesis.speak(u);
+      }
       fbEl.style.color     = '#374151';
       fbEl.style.fontStyle = 'normal';
       if (sess.rep >= ex.reps) {
@@ -695,6 +724,7 @@
         }
       }
       renderSession();
+      if (sess.exIdx === 1 && sess.phase === 'reping') startBalanceTimer();
     }
 
     function renderSession() {
@@ -706,6 +736,10 @@
       document.getElementById('ex-instructions').textContent = ex.instructions;
       document.getElementById('rep-display').textContent    = sess.rep + ' of ' + ex.reps;
       document.getElementById('set-display').textContent    = sess.set + ' of ' + ex.sets;
+
+      document.getElementById('balance-ui').style.display =
+        (sess.exIdx === 1 && sess.phase === 'reping') ? '' : 'none';
+      document.getElementById('slr-prompt').style.display = sess.exIdx === 2 ? 'flex' : 'none';
 
       document.getElementById('phase-reping').style.display           = sess.phase === 'reping'            ? '' : 'none';
       document.getElementById('phase-set-complete').style.display     = sess.phase === 'set-complete'      ? '' : 'none';
@@ -728,6 +762,7 @@
 
     // Simulate Rep (fallback for all exercises; always available)
     document.getElementById('btn-simulate-rep').addEventListener('click', function () {
+      if (sess.exIdx === 1) stopBalanceTimer();
       processRep(randomQuality());
     });
 
@@ -736,8 +771,10 @@
       sess.set++;
       sess.rep   = 0;
       sess.phase = 'reping';
-      resetSquatState();
+      if      (sess.exIdx === 0) resetSquatState();
+      else if (sess.exIdx === 2) resetSLRState();
       renderSession();
+      if (sess.exIdx === 1) startBalanceTimer();
     });
 
     // Face rating buttons
@@ -766,13 +803,21 @@
       sess.phase = 'reping';
       sess.faceSelected = false;
       resetSquatState();
+      if (sess.exIdx === 2) resetSLRState();
 
       var qEl = document.getElementById('quality-display');
       qEl.textContent = '—';
       qEl.style.color = '#1F4D2E';
 
-      var fbEl = document.getElementById('feedback-text');
+      var fbEl = document.getElementById('form-feedback');
       fbEl.textContent   = 'Waiting to begin';
+      window.speechSynthesis.cancel();
+      if (!window._muted) {
+        var u = new SpeechSynthesisUtterance(
+          document.getElementById('form-feedback')
+          .textContent);
+        window.speechSynthesis.speak(u);
+      }
       fbEl.style.color   = '#9CA3AF';
       fbEl.style.fontStyle = 'italic';
 
@@ -783,6 +828,7 @@
       });
 
       renderSession();
+      if (sess.exIdx === 1) startBalanceTimer();
     });
 
     // ── Camera & MediaPipe Pose ────────────────────────────────────────
@@ -816,6 +862,137 @@
       squatState.minAngleL  = squatState.minAngleR = 180;
       squatState.valgusFrames = squatState.motionFrames = 0;
       squatState.symSum     = squatState.symCount = 0;
+    }
+
+    // ── Balance tracking (Exercise 2) ─────────────────────────────────
+    var balanceState = {
+      active: false, leg: 'left',
+      secondsLeft: 30, timerInterval: null,
+      hipXSamples: []
+    };
+
+    function stopBalanceTimer() {
+      clearInterval(balanceState.timerInterval);
+      balanceState.timerInterval = null;
+      balanceState.active = false;
+    }
+
+    function resetBalanceState() {
+      stopBalanceTimer();
+      balanceState.leg = 'left';
+      balanceState.secondsLeft = 30;
+      balanceState.hipXSamples = [];
+    }
+
+    function updateBalanceUI() {
+      document.getElementById('balance-leg-label').textContent =
+        balanceState.leg === 'left' ? '← Left Leg' : 'Right Leg →';
+      document.getElementById('balance-timer').textContent = balanceState.secondsLeft;
+    }
+
+    function startBalanceTimer() {
+      stopBalanceTimer();
+      balanceState.leg = (sess.rep % 2 === 0) ? 'left' : 'right';
+      balanceState.secondsLeft = 30;
+      balanceState.hipXSamples = [];
+      balanceState.active = true;
+      updateBalanceUI();
+      balanceState.timerInterval = setInterval(function () {
+        balanceState.secondsLeft--;
+        updateBalanceUI();
+        if (balanceState.secondsLeft <= 0) {
+          stopBalanceTimer();
+          finishBalanceLeg();
+        }
+      }, 1000);
+    }
+
+    function computeVariance(arr) {
+      if (arr.length < 2) return 0;
+      var mean = arr.reduce(function (a, b) { return a + b; }, 0) / arr.length;
+      return arr.reduce(function (a, v) { return a + (v - mean) * (v - mean); }, 0) / arr.length;
+    }
+
+    function getBalanceFeedback(quality) {
+      if (quality >= 85) return 'Excellent stability';
+      if (quality >= 70) return 'Good — stay steady';
+      return 'Hip dropping — engage your glutes';
+    }
+
+    function finishBalanceLeg() {
+      var variance = computeVariance(balanceState.hipXSamples);
+      // variance ~0.0001 → 96, ~0.0005 → 80, ~0.001 → 60
+      var quality = Math.max(55, Math.min(100, Math.round(100 - variance * 40000)));
+      processRep(quality, getBalanceFeedback(quality));
+    }
+
+    function analyzeBalance(lm) {
+      var lHip = lm[23], rHip = lm[24];
+      if ((lHip.visibility || 0) < 0.3 && (rHip.visibility || 0) < 0.3) return;
+      balanceState.hipXSamples.push((lHip.x + rHip.x) / 2);
+    }
+
+    // ── Straight Leg Raise tracking (Exercise 3) ──────────────────────
+    var slrState = {
+      phase: 'down',       // 'down' | 'up'
+      minHipAngle: 180,
+      kneeAngleSamples: []
+    };
+
+    function resetSLRState() {
+      slrState.phase = 'down';
+      slrState.minHipAngle = 180;
+      slrState.kneeAngleSamples = [];
+    }
+
+    function getSLRFeedback(heightScore, kneeScore) {
+      if (kneeScore < 60) return 'Keep the knee straight';
+      if (heightScore < 50) return 'Raise a little higher';
+      return 'Good — lower slowly';
+    }
+
+    function analyzeSLR(lm) {
+      // Pick the side with better combined hip+knee+ankle visibility
+      var lVis = (lm[23].visibility || 0) + (lm[25].visibility || 0) + (lm[27].visibility || 0);
+      var rVis = (lm[24].visibility || 0) + (lm[26].visibility || 0) + (lm[28].visibility || 0);
+      var hip, knee, ankle;
+      if (lVis >= rVis) { hip = lm[23]; knee = lm[25]; ankle = lm[27]; }
+      else              { hip = lm[24]; knee = lm[26]; ankle = lm[28]; }
+      if (Math.max(lVis, rVis) < 0.9) return;
+
+      // Hip flexion angle: shoulder_mid → hip → knee (170° standing, decreases on raise)
+      var shoulderMid = { x: (lm[11].x + lm[12].x) / 2, y: (lm[11].y + lm[12].y) / 2 };
+      var hipAngle  = angleBetween(shoulderMid, hip, knee);
+      var kneeAngle = angleBetween(hip, knee, ankle);
+
+      document.getElementById('angle-overlay').style.display = '';
+      document.getElementById('angle-label-left').textContent  = 'Hip';
+      document.getElementById('angle-label-right').textContent = 'Knee';
+      document.getElementById('angle-left').textContent  = hipAngle  + '°';
+      document.getElementById('angle-right').textContent = kneeAngle + '°';
+
+      if (slrState.phase === 'down') {
+        if (hipAngle < 135) {
+          slrState.phase = 'up';
+          slrState.minHipAngle = hipAngle;
+          slrState.kneeAngleSamples = [kneeAngle];
+        }
+      } else {
+        slrState.minHipAngle = Math.min(slrState.minHipAngle, hipAngle);
+        slrState.kneeAngleSamples.push(kneeAngle);
+
+        if (hipAngle > 170) {
+          // Rep complete — score it
+          var heightScore = Math.max(0, Math.min(100,
+            Math.round((170 - slrState.minHipAngle) / 35 * 100)));
+          var avgKnee  = slrState.kneeAngleSamples.reduce(function (a, b) { return a + b; }, 0)
+                         / slrState.kneeAngleSamples.length;
+          var kneeScore = Math.max(0, Math.min(100, Math.round((avgKnee - 150) / 30 * 100)));
+          var quality   = Math.round(0.6 * heightScore + 0.4 * kneeScore);
+          processRep(quality, getSLRFeedback(heightScore, kneeScore));
+          resetSLRState();
+        }
+      }
     }
 
     function angleBetween(a, b, c) {
@@ -857,6 +1034,9 @@
     }
 
     function analyzeSquat(lm) {
+      document.getElementById('angle-label-left').textContent  = 'L';
+      document.getElementById('angle-label-right').textContent = 'R';
+
       var lHip = lm[23], lKnee = lm[25], lAnkle = lm[27];
       var rHip = lm[24], rKnee = lm[26], rAnkle = lm[28];
 
@@ -933,9 +1113,15 @@
 
       if (results.poseLandmarks) {
         drawSkeleton(ctx, results.poseLandmarks);
-        // Only analyse squats during exercise 1 while actively reping
         if (sess.exIdx === 0 && sess.phase === 'reping') {
           analyzeSquat(results.poseLandmarks);
+        } else if (sess.exIdx === 1 && sess.phase === 'reping') {
+          analyzeBalance(results.poseLandmarks);
+          document.getElementById('angle-overlay').style.display = 'none';
+          document.getElementById('cam-warning').style.display   = 'none';
+        } else if (sess.exIdx === 2 && sess.phase === 'reping') {
+          analyzeSLR(results.poseLandmarks);
+          document.getElementById('cam-warning').style.display   = 'none';
         } else {
           document.getElementById('angle-overlay').style.display = 'none';
           document.getElementById('cam-warning').style.display   = 'none';
@@ -968,6 +1154,8 @@
       }
 
       resetSquatState();
+      resetBalanceState();
+      resetSLRState();
 
       mpCam = new Camera(camVideo, {
         onFrame: async function () {
@@ -992,6 +1180,7 @@
 
     function stopCamera() {
       if (!camRunning) return;
+      stopBalanceTimer();
       if (mpCam) { mpCam.stop(); mpCam = null; }
       camRunning = false;
       var ctx = camCanvas.getContext('2d');
