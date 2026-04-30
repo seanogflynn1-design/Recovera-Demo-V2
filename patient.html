@@ -448,9 +448,14 @@
       <div style="flex:1; background:white; overflow-y:auto; padding:20px 20px 32px; display:flex; flex-direction:column; gap:14px;">
 
         <!-- Exercise heading -->
-        <div>
-          <p id="ex-number" style="font-size:10.5px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0 0 3px;">Exercise 1 of 3</p>
-          <h2 id="ex-name" style="font-size:17px; font-weight:800; color:#111827; margin:0; line-height:1.2;">Mini Squat</h2>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+          <div>
+            <p id="ex-number" style="font-size:10.5px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0 0 3px;">Exercise 1 of 3</p>
+            <h2 id="ex-name" style="font-size:17px; font-weight:800; color:#111827; margin:0; line-height:1.2;">Mini Squat</h2>
+          </div>
+          <button id="mute-btn" onclick="window._muted=!window._muted;this.textContent=window._muted?'🔇 Muted':'🔊 Voice'"
+            style="flex-shrink:0; height:32px; padding:0 12px; border-radius:8px; border:1.5px solid #E5E7EB; background:white; font-family:inherit; font-size:12px; font-weight:600; color:#374151; cursor:pointer;">
+            🔊 Voice</button>
         </div>
 
         <!-- Instructions -->
@@ -474,7 +479,7 @@
             <p style="font-size:10px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0;">Quality Score</p>
             <p id="quality-display" style="font-size:15px; font-weight:800; color:#1F4D2E; margin:0; transition:color 0.2s;">—</p>
           </div>
-          <p id="feedback-text" style="font-size:12.5px; color:#9CA3AF; font-style:italic; margin:0;">Waiting to begin</p>
+          <p id="form-feedback" style="font-size:12.5px; color:#9CA3AF; font-style:italic; margin:0;">Waiting to begin</p>
         </div>
 
         <!-- Phase: active reping -->
@@ -682,8 +687,15 @@
       var qEl = document.getElementById('quality-display');
       qEl.textContent = score;
       qEl.style.color = qualityColor(score);
-      var fbEl = document.getElementById('feedback-text');
+      var fbEl = document.getElementById('form-feedback');
       fbEl.textContent     = getFeedback(score);
+      window.speechSynthesis.cancel();
+      if (!window._muted) {
+        var u = new SpeechSynthesisUtterance(
+          document.getElementById('form-feedback')
+          .textContent);
+        window.speechSynthesis.speak(u);
+      }
       fbEl.style.color     = '#374151';
       fbEl.style.fontStyle = 'normal';
       if (sess.rep >= ex.reps) {
@@ -771,8 +783,15 @@
       qEl.textContent = '—';
       qEl.style.color = '#1F4D2E';
 
-      var fbEl = document.getElementById('feedback-text');
+      var fbEl = document.getElementById('form-feedback');
       fbEl.textContent   = 'Waiting to begin';
+      window.speechSynthesis.cancel();
+      if (!window._muted) {
+        var u = new SpeechSynthesisUtterance(
+          document.getElementById('form-feedback')
+          .textContent);
+        window.speechSynthesis.speak(u);
+      }
       fbEl.style.color   = '#9CA3AF';
       fbEl.style.fontStyle = 'italic';
 
