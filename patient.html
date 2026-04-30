@@ -6,7 +6,7 @@
   <title>Recovera — Patient</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -18,7 +18,6 @@
               dark:    '#173B22',
               muted:   '#4A7C59',
               pale:    '#EAF4EE',
-              faint:   '#F4FAF6',
             }
           },
           fontFamily: {
@@ -31,7 +30,13 @@
   <style>
     body { -webkit-font-smoothing: antialiased; }
 
-    /* Progress bar */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #F0F0F0;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
+    }
+
     .progress-track {
       background: #E5E7EB;
       border-radius: 999px;
@@ -44,17 +49,8 @@
       background: #1F4D2E;
     }
 
-    /* Subtle card hover */
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #F0F0F0;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
-    }
-
-    /* Score ring */
     .score-ring {
-      width: 52px; height: 52px;
+      width: 60px; height: 60px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       background: conic-gradient(#1F4D2E calc(74 * 1%), #E5E7EB 0);
@@ -63,19 +59,18 @@
     .score-ring::after {
       content: '';
       position: absolute;
-      inset: 5px;
+      inset: 6px;
       border-radius: 50%;
       background: #fff;
     }
     .score-ring span {
       position: relative;
       z-index: 1;
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 800;
       color: #1F4D2E;
     }
 
-    /* Pill badge */
     .badge {
       display: inline-flex;
       align-items: center;
@@ -84,131 +79,117 @@
       border-radius: 999px;
       font-size: 11.5px;
       font-weight: 600;
-      letter-spacing: 0.01em;
     }
   </style>
 </head>
 <body class="bg-[#F6F8F7] font-sans min-h-screen">
 
-  <!-- ─── Header ─────────────────────────────────────────────────── -->
+  <!-- Header -->
   <header class="bg-white border-b border-gray-100 sticky top-0 z-20" style="box-shadow:0 1px 0 #EBEBEB;">
     <div class="max-w-xl mx-auto px-5 h-[62px] flex items-center justify-between">
 
       <!-- Logo -->
       <div class="flex items-center gap-2.5">
         <div class="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center flex-shrink-0" style="background:#1F4D2E">
-          <!-- Stylised R / recovery icon -->
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 14 C4 9 7 5.5 9 5.5 C11 5.5 12.5 7 12.5 9 C12.5 11 11 12 9 12 L9 14" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
             <circle cx="9" cy="9" r="7.25" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="3 2.2"/>
+            <path d="M6 13C6 10 7.5 7 9 7C10.5 7 12 8.5 12 10C12 11.5 10.8 12.5 9.2 12.5L9.2 13" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </svg>
         </div>
-        <span class="text-[17px] font-[750] tracking-tight" style="color:#1F4D2E;letter-spacing:-.4px">Recovera</span>
+        <span class="text-[17px] font-bold tracking-tight" style="color:#1F4D2E">Recovera</span>
       </div>
 
       <!-- Greeting -->
       <div class="text-right">
-        <p class="text-[14px] font-[640] text-gray-800 leading-tight">Good morning, Conor</p>
-        <p class="text-[11.5px] text-gray-400 mt-[1px] font-medium" id="header-date">—</p>
+        <p class="text-[14px] font-semibold text-gray-800 leading-tight">Good morning, Conor</p>
+        <p class="text-[11.5px] text-gray-400 mt-[1px] font-medium" id="header-date"></p>
       </div>
 
     </div>
   </header>
 
-  <!-- ─── Scrollable content ──────────────────────────────────────── -->
-  <main class="max-w-xl mx-auto px-5 pt-5 pb-28 space-y-4">
+  <!-- Main content -->
+  <main class="max-w-xl mx-auto px-5 pt-5 pb-32 space-y-4">
 
-    <!-- ── CARD 1 · Profile ────────────────────────────────────────── -->
+    <!-- Card 1: Patient Info -->
     <div class="card p-5">
-
-      <!-- Top row: avatar + name block -->
       <div class="flex items-start gap-4">
-        <div class="w-[52px] h-[52px] rounded-full flex-shrink-0 flex items-center justify-center text-white font-[700] text-[17px]" style="background:#1F4D2E">
+        <!-- Avatar -->
+        <div class="w-[50px] h-[50px] rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-[16px]" style="background:#1F4D2E">
           CM
         </div>
-        <div class="flex-1 min-w-0 pt-[1px]">
+        <div class="flex-1 min-w-0 pt-0.5">
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-[17px] font-[700] text-gray-900 leading-tight">Conor Murphy</h1>
+            <h1 class="text-[17px] font-bold text-gray-900 leading-tight">Conor Murphy</h1>
             <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">Age 23</span>
           </div>
-          <p class="text-[13px] text-gray-500 mt-[3px] font-[500]">ACL Reconstruction · Right Knee</p>
+          <p class="text-[13px] text-gray-500 mt-1 font-medium">ACL Reconstruction · Right Knee</p>
         </div>
       </div>
 
-      <!-- Divider -->
       <div class="border-t border-gray-100 my-4"></div>
 
-      <!-- Detail grid -->
-      <div class="grid grid-cols-2 gap-y-4 gap-x-4">
-
+      <div class="grid grid-cols-2 gap-y-4">
         <div>
-          <p class="text-[10.5px] font-[600] text-gray-400 uppercase tracking-[0.07em] mb-[3px]">Programme</p>
-          <p class="text-[13.5px] font-[600] text-gray-800 leading-snug">Week 8 of 24</p>
+          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Programme</p>
+          <p class="text-[13.5px] font-semibold text-gray-800">Week 8 of 24</p>
         </div>
-
         <div>
-          <p class="text-[10.5px] font-[600] text-gray-400 uppercase tracking-[0.07em] mb-[3px]">Physiotherapist</p>
-          <p class="text-[13.5px] font-[600] text-gray-800 leading-snug">Áine Loughman</p>
+          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Physiotherapist</p>
+          <p class="text-[13.5px] font-semibold text-gray-800">Áine Loughman</p>
         </div>
-
         <div class="col-span-2">
-          <p class="text-[10.5px] font-[600] text-gray-400 uppercase tracking-[0.07em] mb-[3px]">Next Appointment</p>
+          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Next Appointment</p>
           <div class="flex items-center gap-2">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" class="flex-shrink-0" style="color:#1F4D2E">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="color:#1F4D2E; flex-shrink:0">
               <rect x="1" y="2.5" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.35"/>
               <path d="M4.5 1v3M9.5 1v3M1 6h12" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
             </svg>
-            <p class="text-[13.5px] font-[600] text-gray-800">Thursday 3rd May · 11:00 am</p>
+            <p class="text-[13.5px] font-semibold text-gray-800">Thursday 3rd May · 11:00 am</p>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- ── CARD 2 · Progress + Streak ─────────────────────────────── -->
+    <!-- Card 2: Progress (wider) + Streak (narrower) -->
     <div class="grid grid-cols-5 gap-4">
 
-      <!-- Progress (3 cols) -->
+      <!-- Progress: 3 cols -->
       <div class="card p-5 col-span-3">
-        <div class="flex items-center justify-between mb-[14px]">
+        <div class="flex items-center justify-between mb-3">
           <div>
-            <p class="text-[10.5px] font-[600] text-gray-400 uppercase tracking-[0.07em]">Recovery Progress</p>
-            <p class="text-[15px] font-[700] text-gray-900 mt-[2px]">Week 8 <span class="font-[400] text-gray-400">/ 24</span></p>
+            <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider">Progress</p>
+            <p class="text-[15px] font-bold text-gray-900 mt-1">Week 8 <span class="font-normal text-gray-400">/ 24</span></p>
           </div>
-          <div class="text-right">
-            <p class="text-[22px] font-[800] leading-none" style="color:#1F4D2E">33%</p>
-            <p class="text-[11px] text-gray-400 font-[500] mt-[2px]">complete</p>
-          </div>
+          <p class="text-[22px] font-extrabold leading-none" style="color:#1F4D2E">33%</p>
         </div>
         <div class="progress-track">
           <div class="progress-fill" style="width:33%"></div>
         </div>
         <div class="flex justify-between mt-2">
-          <span class="text-[10.5px] text-gray-400 font-[500]">Week 1</span>
-          <span class="text-[10.5px] text-gray-400 font-[500]">Week 24</span>
+          <span class="text-[10.5px] text-gray-400 font-medium">Week 1</span>
+          <span class="text-[10.5px] text-gray-400 font-medium">Week 24</span>
         </div>
       </div>
 
-      <!-- Streak (2 cols) -->
+      <!-- Streak: 2 cols -->
       <div class="card p-5 col-span-2 flex flex-col items-center justify-center text-center gap-1">
-        <span class="text-[30px] leading-none">🔥</span>
-        <p class="text-[28px] font-[800] text-gray-900 leading-none mt-1">6</p>
-        <p class="text-[11.5px] font-[600] text-gray-500 leading-tight mt-[2px]">day streak</p>
-        <span class="badge mt-2" style="background:#EAF4EE; color:#1F4D2E;">Keep it up!</span>
+        <span class="text-[32px] leading-none">🔥</span>
+        <p class="text-[28px] font-extrabold text-gray-900 leading-none mt-1">6</p>
+        <p class="text-[12px] font-semibold text-gray-500 mt-0.5">day streak</p>
       </div>
 
     </div>
 
-    <!-- ── CARD 3 · Today's Session ───────────────────────────────── -->
+    <!-- Card 3: Today's Session -->
     <div class="card overflow-hidden">
 
-      <!-- Card header -->
       <div class="px-5 pt-5 pb-4 flex items-start justify-between">
         <div>
-          <p class="text-[10.5px] font-[600] text-gray-400 uppercase tracking-[0.07em]">Today's Session</p>
-          <h2 class="text-[16px] font-[700] text-gray-900 mt-[3px]">Lower Limb Rehab</h2>
+          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider">Today's Session</p>
+          <h2 class="text-[16px] font-bold text-gray-900 mt-1">Lower Limb Rehab</h2>
         </div>
-        <span class="badge mt-[2px]" style="background:#EAF4EE; color:#1F4D2E;">
+        <span class="badge mt-0.5" style="background:#EAF4EE; color:#1F4D2E;">
           <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
             <circle cx="6" cy="6" r="4.75" stroke="currentColor" stroke-width="1.35"/>
             <path d="M6 3.5V6.2L7.5 7.5" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
@@ -217,85 +198,50 @@
         </span>
       </div>
 
-      <!-- Exercises -->
-      <div class="px-5 pb-1 space-y-2.5">
+      <div class="px-5 pb-5 space-y-2.5">
 
-        <!-- Exercise row -->
         <div class="flex items-center gap-3 p-3 rounded-[10px]" style="background:#F6F8F7">
-          <div class="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center flex-shrink-0 text-[12px] font-[700] text-white" style="background:#1F4D2E">1</div>
+          <div class="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center flex-shrink-0 text-[12px] font-bold text-white" style="background:#1F4D2E">1</div>
           <div class="flex-1 min-w-0">
-            <p class="text-[13.5px] font-[650] text-gray-800 leading-tight">Mini Squat</p>
-            <p class="text-[11.5px] text-gray-400 font-[500] mt-[1px]">3 sets · 10 reps</p>
+            <p class="text-[13.5px] font-semibold text-gray-800 leading-tight">Mini Squat</p>
+            <p class="text-[11.5px] text-gray-400 font-medium mt-0.5">3 sets · 10 reps</p>
           </div>
-          <span class="text-[11.5px] font-[600] px-2 py-[3px] rounded-full" style="background:#EAF4EE; color:#1F4D2E;">Strength</span>
         </div>
 
         <div class="flex items-center gap-3 p-3 rounded-[10px]" style="background:#F6F8F7">
-          <div class="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center flex-shrink-0 text-[12px] font-[700] text-white" style="background:#1F4D2E">2</div>
+          <div class="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center flex-shrink-0 text-[12px] font-bold text-white" style="background:#1F4D2E">2</div>
           <div class="flex-1 min-w-0">
-            <p class="text-[13.5px] font-[650] text-gray-800 leading-tight">Single Leg Balance</p>
-            <p class="text-[11.5px] text-gray-400 font-[500] mt-[1px]">3 sets · 30 sec</p>
+            <p class="text-[13.5px] font-semibold text-gray-800 leading-tight">Single Leg Balance</p>
+            <p class="text-[11.5px] text-gray-400 font-medium mt-0.5">3 sets · 30 sec</p>
           </div>
-          <span class="text-[11.5px] font-[600] px-2 py-[3px] rounded-full" style="background:#EEF3FF; color:#3B5BDB;">Balance</span>
         </div>
 
         <div class="flex items-center gap-3 p-3 rounded-[10px]" style="background:#F6F8F7">
-          <div class="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center flex-shrink-0 text-[12px] font-[700] text-white" style="background:#1F4D2E">3</div>
+          <div class="w-[30px] h-[30px] rounded-[7px] flex items-center justify-center flex-shrink-0 text-[12px] font-bold text-white" style="background:#1F4D2E">3</div>
           <div class="flex-1 min-w-0">
-            <p class="text-[13.5px] font-[650] text-gray-800 leading-tight">Straight Leg Raise</p>
-            <p class="text-[11.5px] text-gray-400 font-[500] mt-[1px]">3 sets · 10 reps</p>
+            <p class="text-[13.5px] font-semibold text-gray-800 leading-tight">Straight Leg Raise</p>
+            <p class="text-[11.5px] text-gray-400 font-medium mt-0.5">3 sets · 10 reps</p>
           </div>
-          <span class="text-[11.5px] font-[600] px-2 py-[3px] rounded-full" style="background:#EAF4EE; color:#1F4D2E;">Strength</span>
         </div>
 
       </div>
-
-      <!-- Divider -->
-      <div class="border-t border-gray-100 mt-4"></div>
-
-      <!-- Footer row -->
-      <div class="px-5 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="flex items-center gap-1.5 text-[12px] text-gray-400 font-[500]">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M6.5 1.5 L6.5 6.5 L9.5 9" stroke="#9CA3AF" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="6.5" cy="6.5" r="5.25" stroke="#9CA3AF" stroke-width="1.35"/>
-            </svg>
-            15 min
-          </div>
-          <div class="flex items-center gap-1.5 text-[12px] text-gray-400 font-[500]">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <rect x="1.5" y="3" width="10" height="8" rx="1.5" stroke="#9CA3AF" stroke-width="1.35"/>
-              <path d="M4.5 1.5v3M8.5 1.5v3M1.5 6h10" stroke="#9CA3AF" stroke-width="1.35" stroke-linecap="round"/>
-            </svg>
-            3 exercises
-          </div>
-        </div>
-        <div class="flex -space-x-1">
-          <div class="w-5 h-5 rounded-full border-2 border-white flex items-center justify-center text-[8px] font-[700] text-white" style="background:#1F4D2E" title="Strength">S</div>
-          <div class="w-5 h-5 rounded-full border-2 border-white flex items-center justify-center text-[8px] font-[700] text-white" style="background:#3B5BDB" title="Balance">B</div>
-        </div>
-      </div>
-
     </div>
 
-    <!-- ── CARD 4 · Last Session ──────────────────────────────────── -->
+    <!-- Card 4: Last Session -->
     <div class="card p-5">
 
       <div class="flex items-center justify-between mb-4">
         <div>
-          <p class="text-[10.5px] font-[600] text-gray-400 uppercase tracking-[0.07em]">Last Session</p>
-          <p class="text-[14.5px] font-[700] text-gray-900 mt-[3px]">Tuesday 29th April</p>
+          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider">Last Session</p>
+          <p class="text-[14.5px] font-bold text-gray-900 mt-1">Tuesday 29th April</p>
         </div>
-        <!-- Quality ring -->
         <div class="flex flex-col items-center gap-1">
           <div class="score-ring"><span>74</span></div>
-          <p class="text-[10.5px] text-gray-400 font-[500]">Quality</p>
+          <p class="text-[10.5px] text-gray-400 font-medium">Quality</p>
         </div>
       </div>
 
-      <!-- Exercise completion list -->
-      <div class="space-y-2">
+      <div class="space-y-2.5">
 
         <div class="flex items-center gap-3">
           <div class="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style="background:#EAF4EE">
@@ -303,8 +249,8 @@
               <path d="M2 5.2l2 2 4-4" stroke="#1F4D2E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <p class="text-[13px] font-[500] text-gray-700 flex-1">Mini Squat</p>
-          <span class="text-[12px] font-[600] text-gray-400">3 / 3 sets</span>
+          <p class="text-[13px] font-medium text-gray-700 flex-1">Mini Squat</p>
+          <span class="text-[12px] font-semibold text-gray-400">3 / 3 sets</span>
         </div>
 
         <div class="flex items-center gap-3">
@@ -313,8 +259,8 @@
               <path d="M2 5.2l2 2 4-4" stroke="#1F4D2E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <p class="text-[13px] font-[500] text-gray-700 flex-1">Single Leg Balance</p>
-          <span class="text-[12px] font-[600] text-gray-400">3 / 3 sets</span>
+          <p class="text-[13px] font-medium text-gray-700 flex-1">Single Leg Balance</p>
+          <span class="text-[12px] font-semibold text-gray-400">3 / 3 sets</span>
         </div>
 
         <div class="flex items-center gap-3">
@@ -323,41 +269,43 @@
               <path d="M2 5.2l2 2 4-4" stroke="#1F4D2E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <p class="text-[13px] font-[500] text-gray-700 flex-1">Straight Leg Raise</p>
-          <span class="text-[12px] font-[600] text-gray-400">3 / 3 sets</span>
+          <p class="text-[13px] font-medium text-gray-700 flex-1">Straight Leg Raise</p>
+          <span class="text-[12px] font-semibold text-gray-400">3 / 3 sets</span>
         </div>
 
       </div>
 
-      <!-- Bottom note -->
       <div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
-        <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[9px] font-[700] text-white" style="background:#1F4D2E">ÁL</div>
-        <p class="text-[12px] text-gray-400 font-[500]">Reviewed by <span class="text-gray-600 font-[600]">Áine Loughman</span></p>
-        <span class="ml-auto badge" style="background:#EAF4EE; color:#1F4D2E;">Reviewed ✓</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0">
+          <path d="M7 1.5C7 1.5 3 3 3 7C3 9.8 4.8 12 7 13C9.2 12 11 9.8 11 7C11 3 7 1.5 7 1.5Z" stroke="#1F4D2E" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
+          <path d="M5 7l1.5 1.5 2.5-2.5" stroke="#1F4D2E" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p class="text-[12px] text-gray-500 font-medium">All exercises completed</p>
+        <span class="ml-auto badge" style="background:#EAF4EE; color:#1F4D2E;">Complete ✓</span>
       </div>
 
     </div>
 
   </main>
 
-  <!-- ─── Sticky CTA ──────────────────────────────────────────────── -->
+  <!-- Sticky CTA -->
   <div class="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-gray-100 px-5 pt-3 pb-6" style="box-shadow: 0 -4px 16px rgba(0,0,0,.06);">
     <div class="max-w-xl mx-auto">
       <button
-        class="w-full h-[54px] rounded-[14px] text-white font-[700] text-[15.5px] tracking-[-0.1px] transition-all duration-100 active:scale-[0.98]"
+        class="w-full h-[54px] rounded-[14px] text-white font-bold text-[15.5px] tracking-tight transition-all duration-100 active:scale-[0.98]"
         style="background: linear-gradient(135deg, #1F4D2E 0%, #2A6840 100%); box-shadow: 0 4px 14px rgba(31,77,46,.35);"
       >
-        Start Session
+        Start Today's Session
       </button>
     </div>
   </div>
 
   <script>
-    // Render today's date in the header
     const dateEl = document.getElementById('header-date');
     const now = new Date();
-    const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-    dateEl.textContent = now.toLocaleDateString('en-IE', opts);
+    dateEl.textContent = now.toLocaleDateString('en-IE', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
   </script>
 
 </body>
