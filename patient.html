@@ -368,18 +368,284 @@
 
   </div><!-- /setup -->
 
+  <!-- ── SESSION SCREEN ─────────────────────────────────────────────── -->
+  <div id="session" style="display:none">
+    <div style="display:flex; height:calc(100vh - 62px); overflow:hidden;">
+
+      <!-- Left col: camera -->
+      <div style="width:42%; background:#111827; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; flex-shrink:0; padding:28px; text-align:center;">
+        <div style="width:68px; height:68px; border-radius:50%; background:rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="6" width="14" height="12" rx="2.5" stroke="#6B7280" stroke-width="1.5"/>
+            <path d="M16 10.5l5.5-3.5v10l-5.5-3.5V10.5z" stroke="#6B7280" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p style="font-size:13px; font-weight:500; color:#6B7280; margin:0; line-height:1.5;">Camera activates here</p>
+      </div>
+
+      <!-- Right col: exercise panel -->
+      <div style="flex:1; background:white; overflow-y:auto; padding:20px 20px 32px; display:flex; flex-direction:column; gap:14px;">
+
+        <!-- Exercise heading -->
+        <div>
+          <p id="ex-number" style="font-size:10.5px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0 0 3px;">Exercise 1 of 3</p>
+          <h2 id="ex-name" style="font-size:17px; font-weight:800; color:#111827; margin:0; line-height:1.2;">Mini Squat</h2>
+        </div>
+
+        <!-- Instructions -->
+        <p id="ex-instructions" style="font-size:12.5px; color:#6B7280; line-height:1.65; margin:0;">Stand facing the camera, feet shoulder width apart. Bend your knees slowly, keeping them tracking over your toes. Lower to a comfortable depth, then return to standing.</p>
+
+        <!-- Rep + Set counters -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div class="card" style="padding:13px; text-align:center;">
+            <p style="font-size:10px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0 0 4px;">Reps</p>
+            <p id="rep-display" style="font-size:20px; font-weight:800; color:#111827; margin:0; line-height:1;">0 of 10</p>
+          </div>
+          <div class="card" style="padding:13px; text-align:center;">
+            <p style="font-size:10px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0 0 4px;">Set</p>
+            <p id="set-display" style="font-size:20px; font-weight:800; color:#111827; margin:0; line-height:1;">1 of 3</p>
+          </div>
+        </div>
+
+        <!-- Quality score + form feedback -->
+        <div class="card" style="padding:13px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <p style="font-size:10px; font-weight:600; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.07em; margin:0;">Quality Score</p>
+            <p id="quality-display" style="font-size:15px; font-weight:800; color:#1F4D2E; margin:0; transition:color 0.2s;">—</p>
+          </div>
+          <p id="feedback-text" style="font-size:12.5px; color:#9CA3AF; font-style:italic; margin:0;">Waiting to begin</p>
+        </div>
+
+        <!-- Phase: active reping -->
+        <div id="phase-reping">
+          <button id="btn-simulate-rep"
+            style="width:100%; height:46px; border-radius:12px; border:2px solid #1F4D2E; background:transparent; color:#1F4D2E; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer; transition:background 0.1s;"
+            onmouseover="this.style.background='#EAF4EE'" onmouseout="this.style.background='transparent'">
+            Simulate Rep
+          </button>
+        </div>
+
+        <!-- Phase: set complete -->
+        <div id="phase-set-complete" style="display:none">
+          <div style="background:#EAF4EE; border-radius:12px; padding:13px 16px; text-align:center; margin-bottom:12px;">
+            <p style="font-size:14.5px; font-weight:700; color:#1F4D2E; margin:0 0 2px;">Set complete!</p>
+            <p id="sets-remaining-text" style="font-size:12px; color:#4A7C59; margin:0;"></p>
+          </div>
+          <button id="btn-next-set"
+            style="width:100%; height:46px; border-radius:12px; border:none; background:linear-gradient(135deg,#1F4D2E,#2A6840); color:white; font-family:inherit; font-weight:700; font-size:14px; cursor:pointer; box-shadow:0 4px 12px rgba(31,77,46,.3);">
+            Next Set
+          </button>
+        </div>
+
+        <!-- Phase: exercise complete -->
+        <div id="phase-exercise-complete" style="display:none">
+          <div style="text-align:center; margin-bottom:14px;">
+            <p style="font-size:14.5px; font-weight:700; color:#1F4D2E; margin:0 0 3px;">Exercise complete!</p>
+            <p style="font-size:12.5px; color:#9CA3AF; margin:0;">How did it feel?</p>
+          </div>
+          <!-- Face rating buttons -->
+          <div style="display:flex; gap:12px; justify-content:center; margin-bottom:16px;">
+            <button class="face-btn" data-feel="good"
+              style="width:60px; height:60px; border-radius:50%; border:2px solid transparent; background:#DCFCE7; font-size:26px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center;">
+              😊
+            </button>
+            <button class="face-btn" data-feel="ok"
+              style="width:60px; height:60px; border-radius:50%; border:2px solid transparent; background:#FEF9C3; font-size:26px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center;">
+              😐
+            </button>
+            <button class="face-btn" data-feel="pain"
+              style="width:60px; height:60px; border-radius:50%; border:2px solid transparent; background:#FEE2E2; font-size:26px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; justify-content:center;">
+              😣
+            </button>
+          </div>
+          <!-- Next exercise (exercises 1–2) -->
+          <button id="btn-next-exercise" disabled
+            style="display:none; width:100%; height:46px; border-radius:12px; border:none; background:#E5E7EB; color:#9CA3AF; font-family:inherit; font-weight:700; font-size:14px; cursor:not-allowed; transition:all 0.2s;">
+            Next Exercise
+          </button>
+          <!-- Finish session (exercise 3) -->
+          <button id="btn-finish-session"
+            style="display:none; width:100%; height:46px; border-radius:12px; border:none; background:#E5E7EB; color:#9CA3AF; font-family:inherit; font-weight:700; font-size:14px; cursor:not-allowed; transition:all 0.2s;">
+            Finish Session
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- /session -->
+
   <script>
+    // ── Date ──────────────────────────────────────────────────────────
     const dateEl = document.getElementById('header-date');
     const now = new Date();
     dateEl.textContent = now.toLocaleDateString('en-IE', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
 
-    document.getElementById('btn-start').addEventListener('click', function () {
-      document.getElementById('home').style.display = 'none';
-      document.getElementById('setup').style.display = 'block';
+    // ── Screen transitions ─────────────────────────────────────────────
+    function showScreen(id) {
+      ['home', 'setup', 'session'].forEach(function (s) {
+        document.getElementById(s).style.display = s === id ? 'block' : 'none';
+      });
       window.scrollTo(0, 0);
+    }
+
+    document.getElementById('btn-start').addEventListener('click', function () { showScreen('setup'); });
+    document.getElementById('btn-ready').addEventListener('click', function () { showScreen('session'); });
+
+    // ── Session state ──────────────────────────────────────────────────
+    var EXERCISES = [
+      {
+        name: 'Mini Squat',
+        instructions: 'Stand facing the camera, feet shoulder width apart. Bend your knees slowly, keeping them tracking over your toes. Lower to a comfortable depth, then return to standing.',
+        reps: 10, sets: 3
+      },
+      {
+        name: 'Single Leg Balance',
+        instructions: 'Stand on your right leg with hands by your sides. Keep your hips level and fix your gaze on a point ahead. Engage your core and hold steady throughout.',
+        reps: 10, sets: 3
+      },
+      {
+        name: 'Straight Leg Raise',
+        instructions: 'Stand tall. Tighten the muscles at the front of your thigh, then raise your straight leg forward to hip height. Hold briefly, then lower slowly and repeat.',
+        reps: 10, sets: 3
+      }
+    ];
+
+    var sess = { exIdx: 0, rep: 0, set: 1, phase: 'reping', faceSelected: false };
+
+    function randomQuality() { return Math.floor(Math.random() * 36) + 60; }
+
+    function getFeedback(score) {
+      var hi  = ['Great form, keep it up!', 'Excellent technique!', 'Perfect rep, well done.'];
+      var mid = ['Good. Keep knees tracking over toes.', 'Solid — maintain that depth.', 'Nice work, focus on control.'];
+      var lo  = ['Watch your alignment.', 'Slow it down a little.', 'Keep your core tight.'];
+      var pool = score >= 85 ? hi : score >= 70 ? mid : lo;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function qualityColor(score) {
+      return score >= 85 ? '#16A34A' : score >= 70 ? '#CA8A04' : '#DC2626';
+    }
+
+    function setActionBtn(btn, enabled) {
+      btn.disabled = !enabled;
+      btn.style.background = enabled ? 'linear-gradient(135deg,#1F4D2E,#2A6840)' : '#E5E7EB';
+      btn.style.color       = enabled ? 'white' : '#9CA3AF';
+      btn.style.cursor      = enabled ? 'pointer' : 'not-allowed';
+      btn.style.boxShadow   = enabled ? '0 4px 12px rgba(31,77,46,.3)' : 'none';
+    }
+
+    function renderSession() {
+      var ex     = EXERCISES[sess.exIdx];
+      var isLast = sess.exIdx === EXERCISES.length - 1;
+
+      document.getElementById('ex-number').textContent      = 'Exercise ' + (sess.exIdx + 1) + ' of ' + EXERCISES.length;
+      document.getElementById('ex-name').textContent        = ex.name;
+      document.getElementById('ex-instructions').textContent = ex.instructions;
+      document.getElementById('rep-display').textContent    = sess.rep + ' of ' + ex.reps;
+      document.getElementById('set-display').textContent    = sess.set + ' of ' + ex.sets;
+
+      document.getElementById('phase-reping').style.display           = sess.phase === 'reping'            ? '' : 'none';
+      document.getElementById('phase-set-complete').style.display     = sess.phase === 'set-complete'      ? '' : 'none';
+      document.getElementById('phase-exercise-complete').style.display = sess.phase === 'exercise-complete' ? '' : 'none';
+
+      if (sess.phase === 'set-complete') {
+        var remaining = ex.sets - sess.set;
+        document.getElementById('sets-remaining-text').textContent =
+          remaining === 1 ? '1 set remaining' : remaining + ' sets remaining';
+      }
+
+      if (sess.phase === 'exercise-complete') {
+        var nextBtn   = document.getElementById('btn-next-exercise');
+        var finishBtn = document.getElementById('btn-finish-session');
+        nextBtn.style.display   = isLast ? 'none' : '';
+        finishBtn.style.display = isLast ? '' : 'none';
+        setActionBtn(isLast ? finishBtn : nextBtn, sess.faceSelected);
+      }
+    }
+
+    // Simulate Rep
+    document.getElementById('btn-simulate-rep').addEventListener('click', function () {
+      var ex = EXERCISES[sess.exIdx];
+      sess.rep++;
+
+      var score = randomQuality();
+      var qEl   = document.getElementById('quality-display');
+      qEl.textContent = score;
+      qEl.style.color = qualityColor(score);
+
+      var fbEl = document.getElementById('feedback-text');
+      fbEl.textContent  = getFeedback(score);
+      fbEl.style.color  = '#374151';
+      fbEl.style.fontStyle = 'normal';
+
+      if (sess.rep >= ex.reps) {
+        if (sess.set >= ex.sets) {
+          sess.phase = 'exercise-complete';
+          sess.faceSelected = false;
+        } else {
+          sess.phase = 'set-complete';
+        }
+      }
+
+      renderSession();
     });
+
+    // Next Set
+    document.getElementById('btn-next-set').addEventListener('click', function () {
+      sess.set++;
+      sess.rep   = 0;
+      sess.phase = 'reping';
+      renderSession();
+    });
+
+    // Face rating buttons
+    var FACE_COLORS = { good: '#16A34A', ok: '#CA8A04', pain: '#DC2626' };
+    document.querySelectorAll('.face-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.face-btn').forEach(function (b) {
+          b.style.border     = '2px solid transparent';
+          b.style.boxShadow  = 'none';
+          b.style.transform  = 'scale(1)';
+        });
+        var c = FACE_COLORS[this.dataset.feel];
+        this.style.border    = '2px solid ' + c;
+        this.style.boxShadow = '0 0 0 3px ' + c + '33';
+        this.style.transform = 'scale(1.08)';
+        sess.faceSelected    = true;
+        renderSession();
+      });
+    });
+
+    // Next Exercise
+    document.getElementById('btn-next-exercise').addEventListener('click', function () {
+      sess.exIdx++;
+      sess.rep   = 0;
+      sess.set   = 1;
+      sess.phase = 'reping';
+      sess.faceSelected = false;
+
+      var qEl = document.getElementById('quality-display');
+      qEl.textContent = '—';
+      qEl.style.color = '#1F4D2E';
+
+      var fbEl = document.getElementById('feedback-text');
+      fbEl.textContent   = 'Waiting to begin';
+      fbEl.style.color   = '#9CA3AF';
+      fbEl.style.fontStyle = 'italic';
+
+      document.querySelectorAll('.face-btn').forEach(function (b) {
+        b.style.border    = '2px solid transparent';
+        b.style.boxShadow = 'none';
+        b.style.transform = 'scale(1)';
+      });
+
+      renderSession();
+    });
+
+    // Finish Session — does nothing yet
+    document.getElementById('btn-finish-session').addEventListener('click', function () {});
   </script>
 
 </body>
