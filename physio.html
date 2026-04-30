@@ -3,414 +3,248 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recovera — Physiotherapist</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>Recovera — Physiotherapist Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { DEFAULT: '#1F4D2E', dark: '#173B22', muted: '#4A7C59', pale: '#EAF4EE' }
-          },
-          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    body { -webkit-font-smoothing: antialiased; }
-    .card {
+    * { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; box-sizing: border-box; }
+    body { margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; -webkit-font-smoothing: antialiased; }
+
+    /* ── Header ── */
+    #header {
+      height: 58px;
+      min-height: 58px;
+      background: #1F4D2E;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      width: 100%;
+    }
+
+    /* ── Main row ── */
+    #main-row {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 260px;
+      min-width: 260px;
       background: #fff;
-      border-radius: 16px;
-      border: 1px solid #F0F0F0;
-      box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.04);
+      border-right: 1px solid #E5E7EB;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
     }
-    .badge {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 3px 10px; border-radius: 999px;
-      font-size: 11.5px; font-weight: 600;
+
+    /* ── Right panel ── */
+    #right-panel {
+      flex: 1;
+      background: #F0F2F0;
+      overflow-y: scroll;
     }
-    .session-dot {
-      width: 10px; height: 10px; border-radius: 50%;
+
+    /* ── Patient rows ── */
+    .patient-row {
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.12s;
     }
+    .patient-row:hover { background: #F5FAF6; }
+    .patient-row.active {
+      background: #EAF4EE;
+      border-left-color: #1F4D2E;
+    }
+
+    /* ── Panels ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── Status dots ── */
+    .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .dot-green  { background: #22C55E; }
+    .dot-amber  { background: #F59E0B; }
+    .dot-red    { background: #EF4444; }
   </style>
 </head>
-<body class="bg-[#F6F8F7] font-sans min-h-screen">
+<body>
 
-  <!-- Header -->
-  <header class="bg-white border-b border-gray-100 sticky top-0 z-20" style="box-shadow:0 1px 0 #EBEBEB;">
-    <div class="max-w-2xl mx-auto px-5 h-[62px] flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-[34px] h-[34px] rounded-[9px] flex items-center justify-center flex-shrink-0" style="background:#1F4D2E">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <circle cx="9" cy="9" r="7.25" stroke="white" stroke-width="1.5" fill="none" stroke-dasharray="3 2.2"/>
-            <path d="M6 13C6 10 7.5 7 9 7C10.5 7 12 8.5 12 10C12 11.5 10.8 12.5 9.2 12.5L9.2 13" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          </svg>
-        </div>
-        <span class="text-[17px] font-bold tracking-tight" style="color:#1F4D2E">Recovera</span>
+  <!-- ════════════════════════════ HEADER ════════════════════════════ -->
+  <header id="header">
+    <!-- Recovera logo -->
+    <div style="display:flex; align-items:center; gap:9px;">
+      <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7" stroke="white" stroke-width="1.5" stroke-dasharray="3 2" fill="none"/>
+          <path d="M6 13c0-3 1.5-5.5 3-5.5S12 8.5 12 10.5c0 1.3-.9 2.3-2.1 2.3L9.9 13" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
       </div>
-      <div class="text-right">
-        <p class="text-[14px] font-semibold text-gray-800 leading-tight">Good morning, Áine</p>
-        <p id="header-date" class="text-[11.5px] text-gray-400 mt-[1px] font-medium"></p>
-      </div>
+      <span style="color:white; font-size:17px; font-weight:700; letter-spacing:-0.3px;">Recovera</span>
+    </div>
+
+    <!-- Greeting + date -->
+    <div style="text-align:right;">
+      <p style="color:white; font-size:14px; font-weight:600; margin:0; line-height:1.3;">Good morning, Áine</p>
+      <p id="today-date" style="color:rgba(255,255,255,0.7); font-size:12px; margin:0; font-weight:400;"></p>
     </div>
   </header>
 
-  <main class="max-w-2xl mx-auto px-5 pt-5 pb-12 space-y-4">
+  <!-- ════════════════════════════ MAIN ROW ════════════════════════════ -->
+  <div id="main-row">
 
-    <!-- ── Card 1: Patient summary ─────────────────────────────────── -->
-    <div class="card p-5">
+    <!-- ════════════ SIDEBAR ════════════ -->
+    <aside id="sidebar">
 
-      <!-- Name row -->
-      <div class="flex items-start gap-4 mb-4">
-        <div class="w-[48px] h-[48px] rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-[15px]" style="background:#1F4D2E">CM</div>
-        <div class="flex-1 min-w-0 pt-0.5">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-[17px] font-bold text-gray-900">Conor Murphy</h1>
-            <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">Week 8 / 24</span>
+      <!-- ── Section 1: Physio profile ── -->
+      <div style="padding:20px 20px 18px; border-bottom:1px solid #F0F0F0;">
+        <!-- Avatar -->
+        <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+          <div style="width:54px; height:54px; border-radius:50%; background:#1F4D2E; display:flex; align-items:center; justify-content:center; color:white; font-size:16px; font-weight:700; letter-spacing:0.5px; flex-shrink:0;">
+            ÁL
           </div>
-          <p class="text-[13px] text-gray-500 mt-0.5 font-medium">ACL Reconstruction · Right Knee</p>
+          <div style="text-align:center;">
+            <p style="font-size:14px; font-weight:700; color:#111827; margin:0 0 1px;">Áine Loughman</p>
+            <p style="font-size:12px; color:#6B7280; margin:0; font-weight:500;">MISCP</p>
+          </div>
         </div>
-        <span class="badge mt-0.5" style="background:#EAF4EE; color:#1F4D2E;">Active</span>
-      </div>
 
-      <div class="border-t border-gray-100 mb-4"></div>
-
-      <!-- Metrics grid -->
-      <div class="grid grid-cols-2 gap-y-4 gap-x-6">
-
-        <!-- Next appointment -->
-        <div class="col-span-2">
-          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Next Appointment</p>
-          <div class="flex items-center gap-2">
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style="color:#1F4D2E; flex-shrink:0">
-              <rect x="1" y="2.5" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.35"/>
-              <path d="M4.5 1v3M9.5 1v3M1 6h12" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+        <!-- Credentials list -->
+        <div style="margin-top:14px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:#6B7280;">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style="flex-shrink:0; color:#9CA3AF;">
+              <path d="M7 1l1.2 3.5H12L9.2 6.6l1.1 3.5L7 8l-3.3 2.1 1.1-3.5L2 4.5h3.8L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/>
             </svg>
-            <p class="text-[13.5px] font-semibold text-gray-800">Thursday 3rd May · 11:00 am</p>
+            CORU Registered Physiotherapist
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:#6B7280;">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style="flex-shrink:0; color:#9CA3AF;">
+              <rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M4 5h6M4 8h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+            Reg No: PT012847
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:#6B7280;">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style="flex-shrink:0; color:#9CA3AF;">
+              <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M5 7l1.5 1.5L9.5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Physiotherapy Ireland member
           </div>
         </div>
 
-        <!-- Sessions this week -->
-        <div>
-          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Sessions This Week</p>
-          <div class="flex items-center gap-1.5 mb-1.5" id="session-dots"></div>
-          <p class="text-[12px] font-semibold text-gray-500"><span id="sessions-done" class="text-gray-800">4</span> of <span id="sessions-total">7</span></p>
+        <!-- Verified badge -->
+        <div style="margin-top:12px;">
+          <span style="display:inline-flex; align-items:center; gap:4px; background:#EAF4EE; color:#1F4D2E; font-size:11px; font-weight:600; padding:3px 10px; border-radius:999px;">
+            <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            Verified
+          </span>
         </div>
+      </div>
 
-        <!-- Quality score -->
-        <div>
-          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Avg Quality Score</p>
-          <div class="flex items-end gap-2">
-            <p id="quality-score" class="text-[28px] font-extrabold leading-none" style="color:#1F4D2E">71</p>
-            <div class="pb-0.5">
-              <div class="flex items-center gap-1">
-                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                  <path d="M6 10V2M2 6l4-4 4 4" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180 6 6)"/>
-                </svg>
-                <p class="text-[11.5px] font-semibold text-red-500" id="quality-delta">↓ from 74 last week</p>
-              </div>
-            </div>
+      <!-- ── Section 2: Today's patients ── -->
+      <div style="padding-top:16px; flex:1;">
+        <p style="font-size:10.5px; font-weight:700; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.8px; padding:0 20px; margin:0 0 8px;">Today's Patients</p>
+
+        <div class="patient-row active" onclick="selectPatient('conor')">
+          <span class="dot dot-green"></span>
+          <div style="flex:1; min-width:0;">
+            <p style="font-size:13px; font-weight:600; color:#111827; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Conor Murphy</p>
+            <p style="font-size:11.5px; color:#9CA3AF; margin:0;">ACL Week 8 · 11am</p>
           </div>
         </div>
 
-      </div>
-    </div>
-
-    <!-- ── Card 2: Quality trend chart ────────────────────────────── -->
-    <div class="card p-5">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider">Quality Score</p>
-          <p class="text-[15px] font-bold text-gray-900 mt-0.5">Last 14 Sessions</p>
-        </div>
-        <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">Avg: <span id="chart-avg">71</span></span>
-      </div>
-      <div style="height:180px; position:relative;">
-        <canvas id="quality-chart"></canvas>
-      </div>
-    </div>
-
-    <!-- ── Card 3: Biomechanical flag ─────────────────────────────── -->
-    <div class="card p-5" style="border-left:4px solid #EF4444;">
-      <div class="flex items-start gap-3">
-        <div class="w-[34px] h-[34px] rounded-full flex-shrink-0 flex items-center justify-center" style="background:#FEE2E2">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 2L14 13H2L8 2Z" stroke="#EF4444" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
-            <path d="M8 6v3.5" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"/>
-            <circle cx="8" cy="11.5" r="0.75" fill="#EF4444"/>
-          </svg>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-1">
-            <p class="text-[14px] font-bold text-gray-900">Biomechanical Flag</p>
-            <span class="badge" style="background:#FEE2E2; color:#991B1B;">Action needed</span>
+        <div class="patient-row" onclick="selectPatient('sarah')">
+          <span class="dot dot-amber"></span>
+          <div style="flex:1; min-width:0;">
+            <p style="font-size:13px; font-weight:600; color:#111827; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Sarah Collins</p>
+            <p style="font-size:11.5px; color:#9CA3AF; margin:0;">Rotator Cuff · 2pm</p>
           </div>
-          <p class="text-[13.5px] font-semibold text-gray-800 mb-1">Left knee valgus in 3 of 4 sessions this week</p>
-          <p class="text-[12.5px] text-gray-500 leading-relaxed">Pattern is present from rep one, not at fatigue — suggests a structural or hip abductor weakness rather than quad fatigue.</p>
         </div>
-      </div>
-    </div>
 
-    <!-- ── Card 4: Pain ratings last session ──────────────────────── -->
-    <div class="card p-5">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider">Pain Ratings</p>
-          <p class="text-[15px] font-bold text-gray-900 mt-0.5">Last Session</p>
-        </div>
-        <span class="text-[11.5px] font-medium text-gray-400">Yesterday</span>
-      </div>
-
-      <div class="space-y-2.5" id="pain-ratings">
-        <!-- populated by JS -->
-      </div>
-    </div>
-
-    <!-- ── Card 5: Co-Pilot ───────────────────────────────────────── -->
-    <div class="card p-5" style="border-left:4px solid #1F4D2E;">
-      <div class="flex items-start gap-3 mb-4">
-        <div class="w-[34px] h-[34px] rounded-full flex-shrink-0 flex items-center justify-center" style="background:#EAF4EE">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 1l1.5 4h4l-3.25 2.4 1.25 4L8 9l-3.5 2.4 1.25-4L2.5 5h4L8 1z" stroke="#1F4D2E" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
-          </svg>
-        </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-1">
-            <p class="text-[14px] font-bold text-gray-900">Co-Pilot Analysis</p>
-            <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">AI</span>
+        <div class="patient-row" onclick="selectPatient('michael')">
+          <span class="dot dot-red"></span>
+          <div style="flex:1; min-width:0;">
+            <p style="font-size:13px; font-weight:600; color:#111827; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Michael Brady</p>
+            <p style="font-size:11.5px; color:#9CA3AF; margin:0;">Lower Back · 4:30pm</p>
           </div>
-          <p class="text-[13px] text-gray-600 leading-relaxed">Valgus presenting from rep one suggests <strong class="text-gray-800 font-semibold">hip abductor weakness</strong> rather than quad fatigue. Consider testing hip abductors (e.g. Trendelenburg) before progressing to single-leg work. Pain levels are low — patient is not yet symptomatic.</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-3 pt-3 border-t border-gray-100">
-        <button id="btn-accept"
-          class="flex-1 h-[40px] rounded-[10px] text-[13.5px] font-semibold transition-all duration-150"
-          style="border:1.5px solid #1F4D2E; color:#1F4D2E; background:transparent;"
-          onclick="acceptCopilot()">
-          Accept Recommendation
-        </button>
-        <button id="btn-override"
-          class="flex-1 h-[40px] rounded-[10px] text-[13.5px] font-semibold transition-all duration-150"
-          style="border:1.5px solid #D1D5DB; color:#6B7280; background:transparent;"
-          onclick="overrideCopilot()">
-          Override
-        </button>
+      <!-- ── Section 3: Practice summary footer ── -->
+      <div style="border-top:1px solid #F0F0F0; padding:16px 20px;">
+        <p style="font-size:10.5px; font-weight:700; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.8px; margin:0 0 10px;">Practice Summary</p>
+        <div style="display:flex; flex-direction:column; gap:7px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11.5px; color:#6B7280;">Sessions monitored this week</span>
+            <span style="font-size:12px; font-weight:700; color:#111827;">28</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11.5px; color:#6B7280;">Flags requiring attention</span>
+            <span style="font-size:12px; font-weight:700; color:#EF4444;">2</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11.5px; color:#6B7280;">Average adherence</span>
+            <span style="font-size:12px; font-weight:700; color:#111827;">71%</span>
+          </div>
+        </div>
       </div>
-      <p id="copilot-status" class="text-[12px] text-gray-400 text-center mt-2" style="display:none;"></p>
+
+    </aside>
+
+    <!-- ════════════ RIGHT PANEL ════════════ -->
+    <div id="right-panel" style="padding:24px;">
+
+      <div id="panel-conor" class="panel active">
+        Conor's data loads here
+      </div>
+
+      <div id="panel-sarah" class="panel">
+        Sarah's data loads here
+      </div>
+
+      <div id="panel-michael" class="panel">
+        Michael's data loads here
+      </div>
+
     </div>
 
-    <!-- ── Card 6: ROI ────────────────────────────────────────────── -->
-    <div class="card p-5">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider">Clinical ROI</p>
-          <p class="text-[15px] font-bold text-gray-900 mt-0.5">Practice Value</p>
-        </div>
-        <div class="w-[34px] h-[34px] rounded-full flex items-center justify-center" style="background:#EAF4EE">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 2v12M5 5h4.5a2 2 0 010 4H5" stroke="#1F4D2E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
+  </div><!-- /#main-row -->
 
-      <div class="grid grid-cols-2 gap-3">
-
-        <div class="rounded-[12px] p-4" style="background:#EAF4EE;">
-          <p class="text-[10.5px] font-semibold uppercase tracking-wider mb-1" style="color:#4A7C59;">Hours Returned</p>
-          <p class="text-[26px] font-extrabold leading-none mb-0.5" style="color:#1F4D2E;">18</p>
-          <p class="text-[11.5px] font-medium" style="color:#4A7C59;">hours to treatment</p>
-        </div>
-
-        <div class="rounded-[12px] p-4" style="background:#EAF4EE;">
-          <p class="text-[10.5px] font-semibold uppercase tracking-wider mb-1" style="color:#4A7C59;">Session Value</p>
-          <p class="text-[26px] font-extrabold leading-none mb-0.5" style="color:#1F4D2E;">€2,520</p>
-          <p class="text-[11.5px] font-medium" style="color:#4A7C59;">at €70 per session</p>
-        </div>
-
-        <div class="rounded-[12px] p-4" style="background:#F6F8F7; border:1px solid #E5E7EB;">
-          <p class="text-[10.5px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Subscription</p>
-          <p class="text-[26px] font-extrabold text-gray-800 leading-none mb-0.5">€600</p>
-          <p class="text-[11.5px] font-medium text-gray-400">annual cost</p>
-        </div>
-
-        <div class="rounded-[12px] p-4" style="background:#1F4D2E;">
-          <p class="text-[10.5px] font-semibold uppercase tracking-wider mb-1" style="color:rgba(255,255,255,0.6);">Return</p>
-          <p class="text-[26px] font-extrabold leading-none mb-0.5 text-white">4.2×</p>
-          <p class="text-[11.5px] font-medium" style="color:rgba(255,255,255,0.65);">on investment</p>
-        </div>
-
-      </div>
-    </div>
-
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // ── Date header ───────────────────────────────────────────────────
-    document.getElementById('header-date').textContent = new Date().toLocaleDateString('en-IE', {
+    // Today's date in header
+    document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-IE', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
 
-    // ── Data ──────────────────────────────────────────────────────────
-    var HARDCODED_SCORES = [68, 72, 66, 74, 69, 71, 73, 70, 75, 68, 72, 74, 69, 71];
+    function selectPatient(id) {
+      // Hide all panels
+      document.querySelectorAll('.panel').forEach(function(p) {
+        p.classList.remove('active');
+      });
+      // Remove active from all rows
+      document.querySelectorAll('.patient-row').forEach(function(r) {
+        r.classList.remove('active');
+      });
 
-    var HARDCODED_LAST_SESSION = {
-      overallQuality: 71,
-      exercises: [
-        { name: 'Mini Squat',          qualityScore: 78 },
-        { name: 'Single Leg Balance',  qualityScore: 62 },
-        { name: 'Straight Leg Raise',  qualityScore: 65 }
-      ],
-      painScore: 3
-    };
+      // Show target panel
+      var panel = document.getElementById('panel-' + id);
+      if (panel) panel.classList.add('active');
 
-    var sessions = [];
-    try { sessions = JSON.parse(localStorage.getItem('recovera.sessions.v1')) || []; } catch (e) {}
-
-    // Build 14-point quality series — pad with hardcoded if fewer sessions exist
-    var rawScores = sessions.map(function (s) { return s.overallQuality; });
-    var scores14  = HARDCODED_SCORES.slice(0, Math.max(0, 14 - rawScores.length)).concat(rawScores).slice(-14);
-    while (scores14.length < 14) scores14.unshift(HARDCODED_SCORES[scores14.length % HARDCODED_SCORES.length]);
-
-    var lastSession = sessions.length > 0 ? sessions[sessions.length - 1] : HARDCODED_LAST_SESSION;
-    var avg = Math.round(scores14.reduce(function (a, b) { return a + b; }, 0) / scores14.length);
-
-    // ── Patient card ──────────────────────────────────────────────────
-    document.getElementById('quality-score').textContent = avg;
-    document.getElementById('chart-avg').textContent     = avg;
-
-    var sessionsDone  = Math.min(sessions.length, 4) || 4;
-    var sessionsTotal = 7;
-    document.getElementById('sessions-done').textContent  = sessionsDone;
-    document.getElementById('sessions-total').textContent = sessionsTotal;
-
-    var dotsEl = document.getElementById('session-dots');
-    for (var i = 0; i < sessionsTotal; i++) {
-      var dot = document.createElement('div');
-      dot.className = 'session-dot';
-      dot.style.background = i < sessionsDone ? '#1F4D2E' : '#E5E7EB';
-      dotsEl.appendChild(dot);
-    }
-
-    // ── Chart ─────────────────────────────────────────────────────────
-    function last14Labels() {
-      var labels = [];
-      var today  = new Date();
-      for (var i = 13; i >= 0; i--) {
-        var d = new Date(today);
-        d.setDate(d.getDate() - i);
-        labels.push(d.toLocaleDateString('en-IE', { day: 'numeric', month: 'short' }));
-      }
-      return labels;
-    }
-
-    new Chart(document.getElementById('quality-chart'), {
-      type: 'line',
-      data: {
-        labels: last14Labels(),
-        datasets: [{
-          data: scores14,
-          borderColor:     '#1F4D2E',
-          backgroundColor: 'rgba(31,77,46,0.07)',
-          borderWidth:     2.5,
-          pointRadius:     3,
-          pointBackgroundColor: '#1F4D2E',
-          pointBorderColor:     'white',
-          pointBorderWidth:     1.5,
-          tension: 0.4,
-          fill:    true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function (ctx) { return 'Quality: ' + ctx.parsed.y; }
-            },
-            backgroundColor: '#1F4D2E',
-            padding: 8,
-            cornerRadius: 8,
-            titleFont: { size: 11 },
-            bodyFont:  { size: 12, weight: '700' }
-          }
-        },
-        scales: {
-          y: {
-            min: 50, max: 100,
-            ticks: { font: { size: 10, family: 'Inter' }, color: '#9CA3AF', stepSize: 10 },
-            grid:  { color: '#F3F4F6' },
-            border: { display: false }
-          },
-          x: {
-            ticks: {
-              font: { size: 10, family: 'Inter' }, color: '#9CA3AF',
-              maxTicksLimit: 7, maxRotation: 0
-            },
-            grid:   { display: false },
-            border: { display: false }
-          }
+      // Mark clicked row active
+      document.querySelectorAll('.patient-row').forEach(function(row) {
+        if (row.getAttribute('onclick') === "selectPatient('" + id + "')") {
+          row.classList.add('active');
         }
-      }
-    });
-
-    // ── Pain ratings ──────────────────────────────────────────────────
-    function exerciseFace(score) {
-      if (score >= 75) return { emoji: '😊', label: 'Good',     bg: '#DCFCE7', color: '#15803D' };
-      if (score >= 55) return { emoji: '😐', label: 'Mild',     bg: '#FEF9C3', color: '#92400E' };
-      return               { emoji: '😣', label: 'Pain',     bg: '#FEE2E2', color: '#991B1B' };
-    }
-
-    var painEl   = document.getElementById('pain-ratings');
-    var exercises = (lastSession.exercises && lastSession.exercises.length)
-      ? lastSession.exercises
-      : HARDCODED_LAST_SESSION.exercises;
-
-    exercises.forEach(function (ex) {
-      var face = exerciseFace(ex.qualityScore || 70);
-      var row  = document.createElement('div');
-      row.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:10px 14px; border-radius:10px; background:#F6F8F7;';
-      row.innerHTML =
-        '<p style="font-size:13.5px; font-weight:600; color:#374151; margin:0;">' + ex.name + '</p>' +
-        '<div style="display:flex; align-items:center; gap:8px;">' +
-          '<span style="font-size:20px; line-height:1;">' + face.emoji + '</span>' +
-          '<span style="font-size:12px; font-weight:600; padding:2px 9px; border-radius:999px; background:' + face.bg + '; color:' + face.color + ';">' + face.label + '</span>' +
-        '</div>';
-      painEl.appendChild(row);
-    });
-
-    // ── Co-Pilot buttons ──────────────────────────────────────────────
-    function acceptCopilot() {
-      var btn = document.getElementById('btn-accept');
-      btn.textContent = 'Accepted ✓';
-      btn.style.background = '#1F4D2E';
-      btn.style.color      = 'white';
-      btn.style.border     = '1.5px solid #1F4D2E';
-      btn.onclick          = null;
-      document.getElementById('btn-override').style.display = 'none';
-      showCopilotStatus('Recommendation accepted and added to Conor\'s care plan.');
-    }
-
-    function overrideCopilot() {
-      var btn = document.getElementById('btn-override');
-      btn.textContent = 'Override noted';
-      btn.style.borderColor = '#9CA3AF';
-      btn.onclick = null;
-      document.getElementById('btn-accept').style.display = 'none';
-      showCopilotStatus('Override recorded. Co-Pilot will adjust future suggestions.');
-    }
-
-    function showCopilotStatus(msg) {
-      var el = document.getElementById('copilot-status');
-      el.textContent   = msg;
-      el.style.display = 'block';
+      });
     }
   </script>
 
