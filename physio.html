@@ -82,6 +82,13 @@
       border-radius: 50%;
       flex-shrink: 0;
     }
+
+    /* ── Cards ── */
+    .card { background:#fff; border-radius:14px; border:1px solid #E9EAEB; box-shadow:0 1px 3px rgba(0,0,0,.05); padding:20px; }
+    .card-label { font-size:10.5px; font-weight:700; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.7px; margin:0 0 2px; }
+    .card-title { font-size:15px; font-weight:700; color:#111827; margin:0; }
+    .badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 9px; border-radius:999px; }
+    textarea:focus { outline:none; border-color:#1F4D2E !important; box-shadow:0 0 0 3px rgba(31,77,46,0.1); }
   </style>
 </head>
 <body>
@@ -222,7 +229,229 @@
     <div id="right-panel" style="padding:24px;">
 
       <div id="panel-conor" class="panel active">
-        Conor's data loads here
+        <div style="display:flex; flex-direction:column; gap:16px; max-width:800px;">
+
+          <!-- 1. Patient card -->
+          <div class="card">
+            <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:16px;">
+              <div style="width:48px; height:48px; border-radius:50%; background:#1F4D2E; display:flex; align-items:center; justify-content:center; color:#fff; font-size:15px; font-weight:700; flex-shrink:0;">CM</div>
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px;">
+                  <span style="font-size:16px; font-weight:700; color:#111827;">Conor Murphy</span>
+                  <span class="badge" style="background:#F3F4F6; color:#6B7280;">Age 23</span>
+                  <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">Week 8 / 24</span>
+                  <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">Active</span>
+                </div>
+                <p style="font-size:13px; color:#6B7280; margin:0; font-weight:500;">ACL Reconstruction · Right Knee</p>
+              </div>
+            </div>
+            <div style="border-top:1px solid #F3F4F6; padding-top:16px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;">
+              <div>
+                <p class="card-label">Next Appointment</p>
+                <div style="display:flex; align-items:center; gap:6px; margin-top:5px;">
+                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style="flex-shrink:0; color:#1F4D2E;">
+                    <rect x="1" y="2.5" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                    <path d="M4.5 1v3M9.5 1v3M1 6h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                  </svg>
+                  <span style="font-size:13px; font-weight:600; color:#111827;">Thu 3rd May · 11:00am</span>
+                </div>
+              </div>
+              <div>
+                <p class="card-label">Sessions This Week</p>
+                <div style="display:flex; gap:5px; margin:6px 0 5px;">
+                  <div style="width:10px; height:10px; border-radius:50%; background:#1F4D2E;"></div>
+                  <div style="width:10px; height:10px; border-radius:50%; background:#1F4D2E;"></div>
+                  <div style="width:10px; height:10px; border-radius:50%; background:#1F4D2E;"></div>
+                  <div style="width:10px; height:10px; border-radius:50%; background:#1F4D2E;"></div>
+                  <div style="width:10px; height:10px; border-radius:50%; background:#E5E7EB;"></div>
+                  <div style="width:10px; height:10px; border-radius:50%; background:#E5E7EB;"></div>
+                  <div style="width:10px; height:10px; border-radius:50%; background:#E5E7EB;"></div>
+                </div>
+                <p style="font-size:12px; color:#6B7280; margin:0;"><strong style="color:#111827; font-weight:700;">4</strong> of 7</p>
+              </div>
+              <div>
+                <p class="card-label">Avg Quality Score</p>
+                <div style="display:flex; align-items:flex-end; gap:7px; margin-top:3px;">
+                  <span style="font-size:34px; font-weight:800; color:#1F4D2E; line-height:1;">71</span>
+                  <div style="padding-bottom:5px; display:flex; align-items:center; gap:3px;">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M5 1v8M1.5 5.5l3.5 3.5 3.5-3.5" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span style="font-size:11.5px; font-weight:600; color:#EF4444;">from 74</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Quality chart -->
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+              <div>
+                <p class="card-label">Quality Score</p>
+                <p class="card-title">Last 14 Sessions</p>
+              </div>
+              <span class="badge" style="background:#EAF4EE; color:#1F4D2E; white-space:nowrap;">Avg: 71</span>
+            </div>
+            <div style="height:180px; position:relative;">
+              <canvas id="conor-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- 3. Flag card -->
+          <div class="card" style="border-left:4px solid #EF4444;">
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <div style="width:36px; height:36px; border-radius:50%; background:#FEE2E2; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2L14 13H2L8 2Z" stroke="#EF4444" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+                  <path d="M8 6v3.5" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="8" cy="11.5" r="0.75" fill="#EF4444"/>
+                </svg>
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
+                  <p style="font-size:14px; font-weight:700; color:#111827; margin:0;">Biomechanical Flag</p>
+                  <span class="badge" style="background:#FEE2E2; color:#991B1B;">Action needed</span>
+                </div>
+                <p style="font-size:13.5px; font-weight:600; color:#374151; margin:0 0 5px;">Left knee valgus in 3 of 4 sessions this week</p>
+                <p style="font-size:12.5px; color:#6B7280; margin:0; line-height:1.6;">Present from rep one — not at fatigue. Suggests hip abductor weakness rather than quad fatigue.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Pain ratings -->
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+              <div>
+                <p class="card-label">Pain Ratings</p>
+                <p class="card-title">Last Session</p>
+              </div>
+              <span style="font-size:11.5px; color:#9CA3AF; font-weight:500;">Yesterday</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; background:#F9FAFB; padding:10px 14px; border-radius:10px;">
+                <span style="font-size:13.5px; font-weight:600; color:#374151;">Mini Squat</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:20px; line-height:1;">😊</span>
+                  <span class="badge" style="background:#DCFCE7; color:#15803D;">Good</span>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; background:#F9FAFB; padding:10px 14px; border-radius:10px;">
+                <span style="font-size:13.5px; font-weight:600; color:#374151;">Single Leg Balance</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:20px; line-height:1;">😐</span>
+                  <span class="badge" style="background:#FEF3C7; color:#92400E;">Mild</span>
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; background:#F9FAFB; padding:10px 14px; border-radius:10px;">
+                <span style="font-size:13.5px; font-weight:600; color:#374151;">Straight Leg Raise</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:20px; line-height:1;">😐</span>
+                  <span class="badge" style="background:#FEF3C7; color:#92400E;">Mild</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Co-Pilot -->
+          <div class="card" style="border-left:4px solid #1F4D2E;">
+            <div style="display:flex; align-items:flex-start; gap:12px; margin-bottom:16px;">
+              <div style="width:36px; height:36px; border-radius:50%; background:#EAF4EE; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 1l1.5 4.5H14l-4 2.9 1.5 4.6L8 10.1l-3.5 2.9 1.5-4.6L2 5.5h4.5L8 1z" stroke="#1F4D2E" stroke-width="1.3" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                  <p style="font-size:14px; font-weight:700; color:#111827; margin:0;">Co-Pilot Analysis</p>
+                  <span class="badge" style="background:#EAF4EE; color:#1F4D2E;">AI</span>
+                </div>
+                <p style="font-size:13px; color:#6B7280; margin:0; line-height:1.65;">Valgus from rep one suggests <strong style="color:#374151; font-weight:600;">hip abductor weakness</strong> rather than quad fatigue. Consider Trendelenburg test before progressing to single-leg work. Pain levels are low — patient is not yet symptomatic.</p>
+              </div>
+            </div>
+            <div style="display:flex; gap:10px; padding-top:14px; border-top:1px solid #F3F4F6;">
+              <button id="btn-accept" onclick="copilotAccept()"
+                style="flex:1; height:40px; border-radius:10px; font-size:13.5px; font-weight:600; cursor:pointer; border:1.5px solid #1F4D2E; color:#1F4D2E; background:transparent; font-family:inherit;">
+                Accept Recommendation
+              </button>
+              <button id="btn-override" onclick="copilotOverride()"
+                style="flex:1; height:40px; border-radius:10px; font-size:13.5px; font-weight:600; cursor:pointer; border:1.5px solid #D1D5DB; color:#6B7280; background:transparent; font-family:inherit;">
+                Override
+              </button>
+            </div>
+            <p id="copilot-status" style="font-size:12px; color:#9CA3AF; text-align:center; margin:8px 0 0; min-height:16px;"></p>
+          </div>
+
+          <!-- 6. Clinical notes -->
+          <div class="card">
+            <p class="card-label">Clinical Notes</p>
+            <p class="card-title" style="margin-bottom:14px;">Session Observations</p>
+            <textarea id="conor-notes"
+              style="width:100%; min-height:96px; border:1.5px solid #E5E7EB; border-radius:10px; padding:11px 14px; font-size:13.5px; color:#374151; font-family:inherit; resize:vertical; line-height:1.6;"
+              placeholder="Add clinical observations, cues used, patient feedback…"></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+              <p id="notes-status" style="font-size:12px; color:#1F4D2E; font-weight:500; margin:0; visibility:hidden;">Note saved ✓</p>
+              <button onclick="saveNotes()"
+                style="height:38px; padding:0 20px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; border:none; background:#1F4D2E; color:#fff; font-family:inherit;">
+                Save Note
+              </button>
+            </div>
+          </div>
+
+          <!-- 7. Quick actions -->
+          <div style="display:flex; gap:10px;">
+            <button onclick="quickAction(this,'Generate Report','Report generated ✓')"
+              style="flex:1; height:42px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; border:1.5px solid #1F4D2E; color:#1F4D2E; background:#fff; font-family:inherit;">
+              Generate Report
+            </button>
+            <button onclick="quickAction(this,'Message Conor','Message sent ✓')"
+              style="flex:1; height:42px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; border:1.5px solid #1F4D2E; color:#1F4D2E; background:#fff; font-family:inherit;">
+              Message Conor
+            </button>
+            <button onclick="quickAction(this,'Adjust Programme','Programme updated ✓')"
+              style="flex:1; height:42px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; border:none; background:#1F4D2E; color:#fff; font-family:inherit;">
+              Adjust Programme
+            </button>
+          </div>
+
+          <!-- 8. ROI -->
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div>
+                <p class="card-label">Clinical ROI</p>
+                <p class="card-title">Practice Value</p>
+              </div>
+              <div style="width:34px; height:34px; border-radius:50%; background:#EAF4EE; display:flex; align-items:center; justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2v12M5 5h4.5a2 2 0 010 4H5" stroke="#1F4D2E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div style="background:#EAF4EE; border-radius:12px; padding:16px;">
+                <p style="font-size:10.5px; font-weight:700; color:#4A7C59; text-transform:uppercase; letter-spacing:0.6px; margin:0 0 4px;">Hours Returned</p>
+                <p style="font-size:28px; font-weight:800; color:#1F4D2E; margin:0 0 2px; line-height:1;">18</p>
+                <p style="font-size:11.5px; color:#4A7C59; font-weight:500; margin:0;">hours to treatment</p>
+              </div>
+              <div style="background:#EAF4EE; border-radius:12px; padding:16px;">
+                <p style="font-size:10.5px; font-weight:700; color:#4A7C59; text-transform:uppercase; letter-spacing:0.6px; margin:0 0 4px;">Session Value</p>
+                <p style="font-size:28px; font-weight:800; color:#1F4D2E; margin:0 0 2px; line-height:1;">€2,520</p>
+                <p style="font-size:11.5px; color:#4A7C59; font-weight:500; margin:0;">at €70 per session</p>
+              </div>
+              <div style="background:#F6F8F7; border:1px solid #E5E7EB; border-radius:12px; padding:16px;">
+                <p style="font-size:10.5px; font-weight:700; color:#9CA3AF; text-transform:uppercase; letter-spacing:0.6px; margin:0 0 4px;">Subscription</p>
+                <p style="font-size:28px; font-weight:800; color:#111827; margin:0 0 2px; line-height:1;">€600</p>
+                <p style="font-size:11.5px; color:#9CA3AF; font-weight:500; margin:0;">annual cost</p>
+              </div>
+              <div style="background:#1F4D2E; border-radius:12px; padding:16px;">
+                <p style="font-size:10.5px; font-weight:700; color:rgba(255,255,255,0.55); text-transform:uppercase; letter-spacing:0.6px; margin:0 0 4px;">Return</p>
+                <p style="font-size:28px; font-weight:800; color:#fff; margin:0 0 2px; line-height:1;">4.2×</p>
+                <p style="font-size:11.5px; color:rgba(255,255,255,0.65); font-weight:500; margin:0;">on investment</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
       <div id="panel-sarah" class="panel">
@@ -237,11 +466,104 @@
 
   </div><!-- /#app-body -->
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     // Live date in header
     document.getElementById('header-date').textContent = new Date().toLocaleDateString('en-IE', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
+
+    // ── Quality chart ────────────────────────────────────────────────
+    (function () {
+      var scores = [68,72,66,74,69,71,73,70,75,68,72,74,69,71];
+      var labels = [];
+      for (var i = 13; i >= 0; i--) {
+        var d = new Date();
+        d.setDate(d.getDate() - i);
+        labels.push(d.toLocaleDateString('en-IE', { day: 'numeric', month: 'short' }));
+      }
+      new Chart(document.getElementById('conor-chart'), {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: scores,
+            borderColor: '#1F4D2E',
+            backgroundColor: 'rgba(31,77,46,0.07)',
+            borderWidth: 2.5,
+            pointRadius: 3.5,
+            pointBackgroundColor: '#1F4D2E',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 1.5,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: { label: function (c) { return 'Quality: ' + c.parsed.y; } },
+              backgroundColor: '#1F4D2E',
+              padding: 8,
+              cornerRadius: 8,
+              titleFont: { size: 11 },
+              bodyFont: { size: 12, weight: '700' }
+            }
+          },
+          scales: {
+            y: {
+              min: 50, max: 100,
+              ticks: { font: { size: 10 }, color: '#9CA3AF', stepSize: 10 },
+              grid: { color: '#F3F4F6' },
+              border: { display: false }
+            },
+            x: {
+              ticks: { font: { size: 10 }, color: '#9CA3AF', maxTicksLimit: 7, maxRotation: 0 },
+              grid: { display: false },
+              border: { display: false }
+            }
+          }
+        }
+      });
+    })();
+
+    // ── Co-Pilot ─────────────────────────────────────────────────────
+    function copilotAccept() {
+      var a = document.getElementById('btn-accept');
+      var o = document.getElementById('btn-override');
+      a.textContent = 'Accepted ✓';
+      a.style.background = '#1F4D2E';
+      a.style.color = '#fff';
+      a.onclick = null;
+      o.style.display = 'none';
+      document.getElementById('copilot-status').textContent = 'Recommendation added to Conor\'s care plan.';
+    }
+
+    function copilotOverride() {
+      var a = document.getElementById('btn-accept');
+      var o = document.getElementById('btn-override');
+      o.textContent = 'Override noted';
+      o.onclick = null;
+      a.style.display = 'none';
+      document.getElementById('copilot-status').textContent = 'Override recorded. Co-Pilot will adjust future suggestions.';
+    }
+
+    // ── Clinical notes ────────────────────────────────────────────────
+    function saveNotes() {
+      var el = document.getElementById('notes-status');
+      el.style.visibility = 'visible';
+      setTimeout(function () { el.style.visibility = 'hidden'; }, 2500);
+    }
+
+    // ── Quick actions ─────────────────────────────────────────────────
+    function quickAction(btn, original, feedback) {
+      btn.textContent = feedback;
+      btn.disabled = true;
+      setTimeout(function () { btn.textContent = original; btn.disabled = false; }, 2000);
+    }
 
     function selectPatient(id) {
       // Hide all panels
